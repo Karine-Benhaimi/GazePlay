@@ -1,21 +1,14 @@
 package net.gazeplay.games.bera;
 
-import javafx.animation.Transition;
-import javafx.animation.TranslateTransition;
 import javafx.geometry.Dimension2D;
-import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
-import javafx.util.Duration;
 import lombok.extern.slf4j.Slf4j;
 import net.gazeplay.GameLifeCycle;
 import net.gazeplay.IGameContext;
-import net.gazeplay.commons.configuration.BackgroundStyleVisitor;
 import net.gazeplay.commons.configuration.Configuration;
 import net.gazeplay.commons.gamevariants.difficulty.Difficulty;
 import net.gazeplay.commons.gamevariants.difficulty.SourceSet;
@@ -28,8 +21,6 @@ import net.gazeplay.commons.utils.stats.TargetAOI;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -40,18 +31,16 @@ public class Bera implements GameLifeCycle{
     private static final double MAXSIZEPICTO = 250;
 
     private Text questionText;
-    private final String directoryRessource = "data/where-is-the-letter";
-    private final String languageRessource = "data/where-is-the-letter/where-is-the-letter.csv";
+    private final String directoryRessource = "data/bera";
 
     private final int nbLines = 1;
     private final int nbColumns = 2;
     private final boolean fourThree;
 
-    private int level = 1;
-    private int lvlReplays = 1;
     private int rightDecision = 0;
     private int wrongDecision = 0;
     private boolean firstWrong = false;
+    private int startIndex = 0;
 
     private final IGameContext gameContext;
     private final Stats stats;
@@ -88,103 +77,22 @@ public class Bera implements GameLifeCycle{
         final int numberOfImagesToDisplayPerRound = nbLines * nbColumns;
         log.debug("numberOfImagesToDisplayPerRound = {}", numberOfImagesToDisplayPerRound);
 
-        final int winnerImageIndexAmongDisplayedImages = randomGenerator.nextInt(numberOfImagesToDisplayPerRound);
+        final int winnerImageIndexAmongDisplayedImages = 0;
         log.debug("winnerImageIndexAmongDisplayedImages = {}", winnerImageIndexAmongDisplayedImages);
 
-        if (stats.nbGoalsReached > 0 && stats.nbGoalsReached % 8 == 0) {
-            stats.getChiReport().addChiObs(chi2Obs(rightDecision, wrongDecision));
-            stats.getChiReport().addChiLevel(level);
-            boolean randomness = chi2decision(rightDecision, wrongDecision);
-            lvlReplays ++;
-
-            if (randomness && rightDecision > wrongDecision) {
-                if (level < 5)
-                    level++;
-                rightDecision = 0;
-                wrongDecision = 0;
-                lvlReplays = 1;
-            }
-            if (!randomness && level > 1) {
-                level--;
-                rightDecision = 0;
-                wrongDecision = 0;
-                lvlReplays = 1;
-            }
-        }
-
-        currentRoundDetails = pickAndBuildRandomPictures(numberOfImagesToDisplayPerRound, randomGenerator,
-            winnerImageIndexAmongDisplayedImages);
-
-        if (currentRoundDetails != null) {
-
-            final Transition animation = createQuestionTransition(currentRoundDetails.getQuestion(), currentRoundDetails.getPictos());
-            animation.play();
-            if (currentRoundDetails.getQuestionSoundPath() != null) {
-                playQuestionSound();
-            }
-        }
+        currentRoundDetails = pickAndBuildRandomPictures(numberOfImagesToDisplayPerRound, randomGenerator, winnerImageIndexAmongDisplayedImages);
 
         stats.notifyNewRoundReady();
         gameContext.getGazeDeviceManager().addStats(stats);
         gameContext.firstStart();
+
+        this.startGame();
     }
 
-    public void checkAllPictureCardChecked(){
-        boolean check = true;
-        for (final net.gazeplay.games.bera.PictureCard p : currentRoundDetails.getPictureCardList()) {
-            if (!p.isAlreadySee()) {
-                check = false;
-            }
-        }
-        if (check){
-            for (final net.gazeplay.games.bera.PictureCard p : currentRoundDetails.getPictureCardList()) {
-                p.setVisibleProgressIndicator(true);
-            }
-        }
-    }
-
-    private Transition createQuestionTransition(final String question, final List<Image> listOfPictos) {
-
-        questionText = new Text(question);
-
-        questionText.setTranslateY(0);
-
-        final String color = gameContext.getConfiguration().getBackgroundStyle().accept(new BackgroundStyleVisitor<String>() {
-            @Override
-            public String visitLight() {
-                return "titleB";
-            }
-
-            @Override
-            public String visitDark() {
-                return "titleW";
-            }
-        });
-
-        questionText.setId(color);
-
-        final Dimension2D gamePaneDimension2D = gameContext.getGamePanelDimensionProvider().getDimension2D();
-
-        final double positionX = gamePaneDimension2D.getWidth() / 2 - questionText.getBoundsInParent().getWidth() * 2;
-        final double positionY = gamePaneDimension2D.getHeight() / 2 - questionText.getBoundsInParent().getHeight() / 2;
-
-
-        questionText.setX(positionX);
-        questionText.setY(positionY);
-        questionText.setTextAlignment(TextAlignment.CENTER);
-        StackPane.setAlignment(questionText, Pos.CENTER);
-
-        gameContext.getChildren().add(questionText);
-        final long timeStarted = System.currentTimeMillis();
-        final TargetAOI targetAOI = new TargetAOI(gamePaneDimension2D.getWidth() / 2, gamePaneDimension2D.getHeight() / 2, (int) questionText.getBoundsInParent().getWidth(),
-            timeStarted);
-        targetAOI.setTimeEnded(timeStarted + gameContext.getConfiguration().getQuestionLength());
-        targetAOIList.add(targetAOI);
-
-
+    public void startGame(){
         final List<Rectangle> pictogramesList = new ArrayList<>(20); // storage of actual Pictogramm nodes in order to delete
-        // them
-        // from the group later
+
+        final List<Image> listOfPictos = currentRoundDetails.getPictos();
 
         if (listOfPictos != null && !listOfPictos.isEmpty() && listOfPictos.size() <= NBMAXPICTO) {
 
@@ -206,6 +114,9 @@ public class Bera implements GameLifeCycle{
 
             log.debug("shift Size: {}", shift);
 
+            final Dimension2D gamePaneDimension2D = gameContext.getGamePanelDimensionProvider().getDimension2D();
+            final double positionY = gamePaneDimension2D.getHeight() / 2 - questionText.getBoundsInParent().getHeight() / 2;
+
             for (final Image picto : listOfPictos) {
 
                 final Rectangle pictoRectangle = new Rectangle(pictoSize, pictoSize);
@@ -218,43 +129,36 @@ public class Bera implements GameLifeCycle{
             gameContext.getChildren().addAll(pictogramesList);
         }
 
-        final TranslateTransition fullAnimation = new TranslateTransition(
-            Duration.millis(gameContext.getConfiguration().getQuestionLength() / 2.0), questionText);
+        gameContext.getChildren().removeAll(pictogramesList);
 
-        fullAnimation.setDelay(Duration.millis(gameContext.getConfiguration().getQuestionLength()));
+        //log.debug("Adding {} pictures", currentRoundDetails.getPictureCardList().size());
+        if(currentRoundDetails != null) {
+            gameContext.getChildren().addAll(currentRoundDetails.getPictureCardList());
 
-        final double bottomCenter = (0.9 * gamePaneDimension2D.getHeight()) - questionText.getY()
-            + questionText.getBoundsInParent().getHeight() * 3;
-        fullAnimation.setToY(bottomCenter);
-
-        fullAnimation.setOnFinished(actionEvent -> {
-            // gameContext.getChildren().remove(questionText);
-
-            gameContext.getChildren().removeAll(pictogramesList);
-
-            //log.debug("Adding {} pictures", currentRoundDetails.getPictureCardList().size());
-            if(currentRoundDetails != null) {
-                gameContext.getChildren().addAll(currentRoundDetails.getPictureCardList());
-
-                for (final net.gazeplay.games.bera.PictureCard p : currentRoundDetails.getPictureCardList()) {
-                    //  log.debug("p = {}", p);
-                    p.toFront();
-                    p.setOpacity(1);
-                }
+            for (final net.gazeplay.games.bera.PictureCard p : currentRoundDetails.getPictureCardList()) {
+                //  log.debug("p = {}", p);
+                p.toFront();
+                p.setOpacity(1);
             }
-            questionText.toFront();
+        }
 
-            stats.notifyNewRoundReady();
+        stats.notifyNewRoundReady();
 
-            gameContext.onGameStarted(2000);
-        });
-
-        return fullAnimation;
+        gameContext.onGameStarted(2000);
     }
 
-    void playQuestionSound() {
-        String soundResource = currentRoundDetails.getQuestionSoundPath();
-        gameContext.getSoundManager().add(soundResource);
+    public void checkAllPictureCardChecked(){
+        boolean check = true;
+        for (final net.gazeplay.games.bera.PictureCard p : currentRoundDetails.getPictureCardList()) {
+            if (!p.isAlreadySee()) {
+                check = false;
+            }
+        }
+        if (check){
+            for (final net.gazeplay.games.bera.PictureCard p : currentRoundDetails.getPictureCardList()) {
+                p.setVisibleProgressIndicator();
+            }
+        }
     }
 
     /**
@@ -307,7 +211,7 @@ public class Bera implements GameLifeCycle{
         List<String> resourcesFolders = new LinkedList<>();
 
         final String resourcesDirectory = this.directoryRessource;
-        final String imagesDirectory = resourcesDirectory + "/images/";
+        final String imagesDirectory = resourcesDirectory + "/wordsVersion1/";
         directoryName = imagesDirectory;
 
         // Here we filter out any unwanted resource folders, based on the difficulty JSON file
@@ -355,24 +259,12 @@ public class Bera implements GameLifeCycle{
         List<Image> pictograms = null;
 
         for (int i = 0; i < numberOfImagesToDisplayPerRound; i++) {
-            int index = random.nextInt(resourcesFolders.size());
 
-            final String folder = resourcesFolders.remove((index) % directoriesCount);
-            final String folderName = (new File(folder)).getName();
+            final String folder = resourcesFolders.remove(this.startIndex);
 
             final Set<String> files = ResourceFileManager.getResourcePaths(folder);
 
-            final int numFile = random.nextInt(files.size());
-
-            final String randomImageFile = (String) files.toArray()[numFile];
-
-            if (winnerImageIndexAmongDisplayedImages == i) {
-
-                questionSoundPath = getPathSound(folderName, language);
-
-                question = getQuestionText(folderName, language);
-
-            }
+            final String randomImageFile = (String) files.toArray()[i];
 
             final net.gazeplay.games.bera.PictureCard pictureCard = new net.gazeplay.games.bera.PictureCard(gameSizing.width * posX + gameSizing.shift,
                 gameSizing.height * posY, gameSizing.width, gameSizing.height, gameContext,
@@ -393,6 +285,8 @@ public class Bera implements GameLifeCycle{
             }
         }
 
+        Collections.shuffle(pictureCardList);
+
         return new net.gazeplay.games.bera.RoundDetails(pictureCardList, winnerImageIndexAmongDisplayedImages, questionSoundPath, question,
             pictograms);
     }
@@ -412,99 +306,7 @@ public class Bera implements GameLifeCycle{
         gameContext.getChildren().addAll(error);
     }
 
-    private String getPathSound(final String folder, final String language) {
-
-        if (!(language.equals("fra") || language.equals("eng") || language.equals("chn"))) {
-            // sound is only for English, French and Chinese
-            // erase when translation is complete
-            return null;
-        }
-
-        log.debug("language is " + language);
-
-        final String voice;
-        if (randomGenerator.nextDouble() > 0.5) {
-            voice = "m";
-        } else {
-            voice = "w";
-        }
-
-        return "data/" + this.directoryRessource + "/sounds/" + language + "/" + folder + "." + voice
-            + "." + language + ".mp3";
+    public void indexFile() {
+        startIndex++;
     }
-
-    private String getQuestionText(final String folder, final String language) {
-
-        log.debug("folder: {}", folder);
-        log.debug("language: {}", language);
-
-        final Multilinguism localMultilinguism = MultilinguismFactory.getForResource(this.languageRessource);
-
-        return localMultilinguism.getTranslation(folder, language);
-    }
-
-    public void updateRight() {
-        rightDecision++;
-    }
-
-    public void updateWrong() {
-        wrongDecision++;
-    }
-
-    public boolean getFirstWrong() {
-        return firstWrong;
-    }
-
-    public void firstWrongCardSelected() {
-        firstWrong = true;
-    }
-
-    public void firstRightCardSelected() {
-        firstWrong = false;
-    }
-
-    public int factorial (int n) {
-        if (n == 0)
-            return 1;
-        else
-            return(n * factorial(n-1));
-    }
-
-    public float compute(int n, int k){
-        return (float)factorial(n)/(factorial(k)*factorial(n-k));
-    }
-
-    public double binomProba(int n, int k, double p){
-        return compute(n, k) * Math.pow(p, k)*Math.pow(1-p, n-k);
-    }
-
-    public double chi2Obs(int tp, int fp) {
-        double[] probas = {8 * lvlReplays * binomProba(1, 1,0.5), 8 * lvlReplays * binomProba(1, 0,0.5)};
-
-        return Math.pow(tp - probas[0], 2) / probas[0] + Math.pow(fp - probas[1], 2) / probas[1];
-    }
-
-    public boolean chi2decision(int tp, int fp) {
-        boolean decision = false;
-
-        final ArrayList<Double> chi2_theoretic = new ArrayList<Double>();
-        chi2_theoretic.add(3.84);
-        chi2_theoretic.add(2.71);
-        chi2_theoretic.add(1.32);
-        chi2_theoretic.add(0.45);
-
-        double chi2_obs = chi2Obs(tp, fp);
-
-        log.info("tp = {}, fp = {}", tp, fp);
-        log.info("chi2_obs = {}", chi2_obs);
-        log.info("chi2_th = {}, replays = {}", chi2_theoretic, lvlReplays);
-
-        int index = lvlReplays > 4 ?  lvlReplays - 1 : 3;
-
-        if (chi2_theoretic.get(index) <= chi2_obs)
-            decision = true;
-
-        return decision;
-    }
-
 }

@@ -9,6 +9,8 @@ import javafx.scene.Group;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
@@ -21,7 +23,6 @@ import net.gazeplay.IGameContext;
 import net.gazeplay.commons.configuration.Configuration;
 import net.gazeplay.commons.gaze.devicemanager.GazeEvent;
 import net.gazeplay.commons.utils.stats.Stats;
-import net.gazeplay.games.bera.Bera;
 
 @Slf4j
 @ToString
@@ -48,9 +49,9 @@ class PictureCard extends Group {
     private Timeline progressIndicatorAnimationTimeLine;
 
     private boolean selected;
-    private boolean alreadySee = false;
+    private boolean alreadySee;
 
-    private final net.gazeplay.games.bera.PictureCard.CustomInputEventHandler customInputEventHandler;
+    private final PictureCard.CustomInputEventHandlerMouse customInputEventHandlerMouse;
 
     private final Bera gameInstance;
 
@@ -67,6 +68,7 @@ class PictureCard extends Group {
         this.initialWidth = width;
         this.initialHeight = height;
         this.selected = false;
+        this.alreadySee = false;
         this.winner = winner;
         this.gameContext = gameContext;
         this.stats = stats;
@@ -84,13 +86,18 @@ class PictureCard extends Group {
         this.getChildren().add(progressIndicator);
         this.getChildren().add(errorImageRectangle);
 
-        customInputEventHandler = new net.gazeplay.games.bera.PictureCard.CustomInputEventHandler();
+        customInputEventHandlerMouse = new PictureCard.CustomInputEventHandlerMouse();
 
         gameContext.getGazeDeviceManager().addEventFilter(imageRectangle);
 
-        this.addEventFilter(MouseEvent.ANY, customInputEventHandler);
+        this.addEventFilter(MouseEvent.ANY, customInputEventHandlerMouse);
+        this.addEventFilter(GazeEvent.ANY, customInputEventHandlerMouse);
 
-        this.addEventFilter(GazeEvent.ANY, customInputEventHandler);
+        this.addEventHandler(KeyEvent.KEY_PRESSED, (key) -> {
+            if (key.getCode() == KeyCode.A){
+                onCorrectCardSelected(gameInstance);
+            }
+        });
     }
 
     private Timeline createProgressIndicatorTimeLine(Bera gameInstance) {
@@ -112,13 +119,11 @@ class PictureCard extends Group {
 
             log.debug("FINISHED");
 
-            selected = true;
-
-            imageRectangle.removeEventFilter(MouseEvent.ANY, customInputEventHandler);
-            imageRectangle.removeEventFilter(GazeEvent.ANY, customInputEventHandler);
-            gameContext.getGazeDeviceManager().removeEventFilter(imageRectangle);
-
             if (this.alreadySee){
+                selected = true;
+                imageRectangle.removeEventFilter(MouseEvent.ANY, customInputEventHandlerMouse);
+                imageRectangle.removeEventFilter(GazeEvent.ANY, customInputEventHandlerMouse);
+                gameContext.getGazeDeviceManager().removeEventFilter(imageRectangle);
                 if (winner) {
                     onCorrectCardSelected(gameInstance);
                 } else {
@@ -126,24 +131,32 @@ class PictureCard extends Group {
                     onWrongCardSelected(gameInstance);
                 }
             }else {
-                this.newProgressIndicator();
                 this.alreadySee = true;
+                customInputEventHandlerMouse.ignoreAnyInput = true;
+                this.newProgressIndicator();
                 gameInstance.checkAllPictureCardChecked();
             }
         };
     }
 
-    private void onCorrectCardSelected(Bera gameInstance) {
+    public void setVisibleProgressIndicator(){
+        customInputEventHandlerMouse.ignoreAnyInput = false;
+    }
+
+    public void newProgressIndicator(){
+        this.getChildren().remove(progressIndicator);
+        this.progressIndicator = buildProgressIndicator(initialWidth, initialHeight);
+        this.getChildren().add(progressIndicator);
+    }
+
+    public void onCorrectCardSelected(Bera gameInstance) {
         log.debug("WINNER");
 
-        if (!gameInstance.getFirstWrong())
-            gameInstance.updateRight();
-
-        gameInstance.firstRightCardSelected();
+        gameInstance.indexFile();
 
         stats.incrementNumberOfGoalsReached();
 
-        customInputEventHandler.ignoreAnyInput = true;
+        customInputEventHandlerMouse.ignoreAnyInput = true;
         progressIndicator.setVisible(false);
 
         gameInstance.removeAllIncorrectPictureCards();
@@ -184,11 +197,8 @@ class PictureCard extends Group {
     }
 
     private void onWrongCardSelected(Bera gameInstance) {
-        //could be a single function?
-        gameInstance.updateWrong();
-        gameInstance.firstWrongCardSelected();
 
-        customInputEventHandler.ignoreAnyInput = true;
+        customInputEventHandlerMouse.ignoreAnyInput = true;
         progressIndicator.setVisible(false);
 
         FadeTransition imageFadeOutTransition = new FadeTransition(new Duration(1500), imageRectangle);
@@ -209,10 +219,7 @@ class PictureCard extends Group {
         fullAnimation.getChildren().addAll(imageFadeOutTransition, errorFadeInTransition);
 
         fullAnimation.setOnFinished(actionEvent -> {
-            if (gameContext.getConfiguration().isReaskedQuestionOnFail()) {
-                gameInstance.playQuestionSound();
-            }
-            customInputEventHandler.ignoreAnyInput = false;
+            customInputEventHandlerMouse.ignoreAnyInput = false;
         });
 
         fullAnimation.play();
@@ -299,15 +306,7 @@ class PictureCard extends Group {
         return result;
     }
 
-    public void setVisibleProgressIndicator(boolean value){
-        progressIndicator.setVisible(value);
-    }
-
-    public void newProgressIndicator(){
-        this.progressIndicator = buildProgressIndicator(this.initialWidth, this.initialHeight);
-    }
-
-    private class CustomInputEventHandler implements EventHandler<Event> {
+    private class CustomInputEventHandlerMouse implements EventHandler<Event> {
 
         /**
          * this is used to temporarily indicate to ignore input for instance, when an animation is in progress, we
@@ -331,7 +330,6 @@ class PictureCard extends Group {
             } else if (e.getEventType() == MouseEvent.MOUSE_EXITED || e.getEventType() == GazeEvent.GAZE_EXITED) {
                 onExited();
             }
-
         }
 
         private void onEntered() {
