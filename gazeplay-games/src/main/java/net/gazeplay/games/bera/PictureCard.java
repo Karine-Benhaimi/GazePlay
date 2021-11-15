@@ -9,8 +9,6 @@ import javafx.scene.Group;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
@@ -93,11 +91,6 @@ class PictureCard extends Group {
         this.addEventFilter(MouseEvent.ANY, customInputEventHandlerMouse);
         this.addEventFilter(GazeEvent.ANY, customInputEventHandlerMouse);
 
-        this.addEventHandler(KeyEvent.KEY_PRESSED, (key) -> {
-            if (key.getCode() == KeyCode.A){
-                onCorrectCardSelected(gameInstance);
-            }
-        });
     }
 
     private Timeline createProgressIndicatorTimeLine(Bera gameInstance) {
@@ -119,7 +112,7 @@ class PictureCard extends Group {
 
             log.debug("FINISHED");
 
-            if (this.alreadySee){
+            if (!this.alreadySee){
                 selected = true;
                 imageRectangle.removeEventFilter(MouseEvent.ANY, customInputEventHandlerMouse);
                 imageRectangle.removeEventFilter(GazeEvent.ANY, customInputEventHandlerMouse);
@@ -150,79 +143,44 @@ class PictureCard extends Group {
     }
 
     public void onCorrectCardSelected(Bera gameInstance) {
-        log.debug("WINNER");
 
-        gameInstance.indexFile();
+        if (gameInstance.indexFileImage == 19){
+            this.endGame();
+        }else {
+            gameInstance.increaseIndexFileImage(true);
 
-        stats.incrementNumberOfGoalsReached();
+            stats.incrementNumberOfGoalsReached();
 
-        customInputEventHandlerMouse.ignoreAnyInput = true;
-        progressIndicator.setVisible(false);
+            customInputEventHandlerMouse.ignoreAnyInput = true;
+            progressIndicator.setVisible(false);
 
-        gameInstance.removeAllIncorrectPictureCards();
+            gameContext.updateScore(stats, gameInstance);
 
-        this.toFront();
-
-        Dimension2D gamePanelDimension2D = gameContext.getGamePanelDimensionProvider().getDimension2D();
-        log.info("gamePanelDimension2D = {}", gamePanelDimension2D);
-
-        ScaleTransition scaleToFullScreenTransition = new ScaleTransition(new Duration(1000), imageRectangle);
-        double ratio = Math.max((gamePanelDimension2D.getWidth() / initialWidth), (gamePanelDimension2D.getHeight() / initialHeight));
-        scaleToFullScreenTransition.setByX(ratio - 1);
-        scaleToFullScreenTransition.setByY(ratio - 1);
-
-        TranslateTransition translateToCenterTransition = new TranslateTransition(new Duration(1000),
-            imageRectangle);
-        translateToCenterTransition
-            .setByX(-initialPositionX + (gamePanelDimension2D.getWidth() - initialWidth) / 2);
-        translateToCenterTransition
-            .setByY(-initialPositionY + (gamePanelDimension2D.getHeight() - initialHeight) / 2);
-
-        ParallelTransition fullAnimation = new ParallelTransition();
-        fullAnimation.getChildren().add(translateToCenterTransition);
-        fullAnimation.getChildren().add(scaleToFullScreenTransition);
-
-        gameContext.updateScore(stats, gameInstance);
-
-        fullAnimation.setOnFinished(actionEvent -> gameContext.playWinTransition(500, actionEvent1 -> {
             gameInstance.dispose();
             gameContext.clear();
             gameInstance.launch();
-            // HomeUtils.home(gameInstance.scene, gameInstance.group, gameInstance.choiceBox,
-            // gameInstance.stats);
+        }
 
-        }));
-
-        fullAnimation.play();
     }
 
     private void onWrongCardSelected(Bera gameInstance) {
 
-        customInputEventHandlerMouse.ignoreAnyInput = true;
-        progressIndicator.setVisible(false);
+        if (gameInstance.indexFileImage == 19){
+            this.endGame();
+        }else {
+            gameInstance.increaseIndexFileImage(false);
 
-        FadeTransition imageFadeOutTransition = new FadeTransition(new Duration(1500), imageRectangle);
-        imageFadeOutTransition.setFromValue(1);
-        // the final opacity is not zero so that we can see what was the image, even after it is marked as an
-        // erroneous pick
-        imageFadeOutTransition.setToValue(0.2);
+            stats.incrementNumberOfGoalsReached();
 
-        errorImageRectangle.toFront();
-        errorImageRectangle.setOpacity(0);
-        errorImageRectangle.setVisible(true);
+            customInputEventHandlerMouse.ignoreAnyInput = true;
+            progressIndicator.setVisible(false);
 
-        FadeTransition errorFadeInTransition = new FadeTransition(new Duration(650), errorImageRectangle);
-        errorFadeInTransition.setFromValue(0);
-        errorFadeInTransition.setToValue(1);
+            gameContext.updateScore(stats, gameInstance);
 
-        ParallelTransition fullAnimation = new ParallelTransition();
-        fullAnimation.getChildren().addAll(imageFadeOutTransition, errorFadeInTransition);
-
-        fullAnimation.setOnFinished(actionEvent -> {
-            customInputEventHandlerMouse.ignoreAnyInput = false;
-        });
-
-        fullAnimation.play();
+            gameInstance.dispose();
+            gameContext.clear();
+            gameInstance.launch();
+        }
     }
 
     private ImageView createImageView(double posX, double posY, double width, double height,
@@ -352,6 +310,21 @@ class PictureCard extends Group {
             progressIndicator.setProgress(0);
         }
 
+    }
+
+    public void endGame(){
+
+        progressIndicator.setVisible(false);
+        gameInstance.finalStats();
+        gameContext.updateScore(stats, gameInstance);
+
+        gameContext.playWinTransition(0, event -> {
+            gameInstance.dispose();
+
+            gameContext.clear();
+
+            gameContext.showRoundStats(stats, gameInstance);
+        });
     }
 
 }

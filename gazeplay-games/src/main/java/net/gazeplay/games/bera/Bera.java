@@ -19,8 +19,8 @@ import net.gazeplay.commons.utils.multilinguism.MultilinguismFactory;
 import net.gazeplay.commons.utils.stats.Stats;
 import net.gazeplay.commons.utils.stats.TargetAOI;
 
-import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -37,10 +37,28 @@ public class Bera implements GameLifeCycle{
     private final int nbColumns = 2;
     private final boolean fourThree;
 
-    private int rightDecision = 0;
-    private int wrongDecision = 0;
-    private boolean firstWrong = false;
-    private int startIndex = 0;
+    //Phonology
+    private int totalPhonology = 0;
+    private int simpleScoreItemsPhonology = 0;
+    private int complexScoreItemsPhonology = 0;
+    private int scoreLeftTargetItemsPhonology = 0;
+    private int scoreRightTargetItemsPhonology = 0;
+
+    //Semantics
+    private int totalSemantic = 0;
+    private int simpleScoreItemsSemantic = 0;
+    private int complexScoreItemsSemantic = 0;
+    private int frequentScoreItemSemantic = 0;
+    private int infrequentScoreItemSemantic = 0;
+    private int scoreLeftTargetItemsSemantic = 0;
+    private int scoreRightTargetItemsSemantic = 0;
+
+    //Word comprehension
+    private int totalWordComprehension = 0;
+    private int totalItemsAddedManually = 0;
+    private int total = 0;
+
+    public int indexFileImage = 0;
 
     private final IGameContext gameContext;
     private final Stats stats;
@@ -80,7 +98,7 @@ public class Bera implements GameLifeCycle{
         final int winnerImageIndexAmongDisplayedImages = 0;
         log.debug("winnerImageIndexAmongDisplayedImages = {}", winnerImageIndexAmongDisplayedImages);
 
-        currentRoundDetails = pickAndBuildRandomPictures(numberOfImagesToDisplayPerRound, randomGenerator, winnerImageIndexAmongDisplayedImages);
+        currentRoundDetails = pickAndBuildRandomPictures(numberOfImagesToDisplayPerRound, winnerImageIndexAmongDisplayedImages);
 
         stats.notifyNewRoundReady();
         gameContext.getGazeDeviceManager().addStats(stats);
@@ -201,8 +219,7 @@ public class Bera implements GameLifeCycle{
         gameContext.getChildren().removeAll(pictureCardsToHide);
     }
 
-    net.gazeplay.games.bera.RoundDetails pickAndBuildRandomPictures(final int numberOfImagesToDisplayPerRound, final ReplayablePseudoRandom random,
-                                                                         final int winnerImageIndexAmongDisplayedImages) {
+    net.gazeplay.games.bera.RoundDetails pickAndBuildRandomPictures(final int numberOfImagesToDisplayPerRound, final int winnerImageIndexAmongDisplayedImages) {
 
         final Configuration config = gameContext.getConfiguration();
 
@@ -225,6 +242,7 @@ public class Bera implements GameLifeCycle{
         }
 
         Set<String> tempResourcesFolders = ResourceFileManager.getResourceFolders(imagesDirectory);
+        log.info("RESSOURCES FILE MANAGER : {}", tempResourcesFolders);
 
         // If nothing can be found we take the entire folder contents.
         if (!difficultySet.isEmpty()) {
@@ -236,6 +254,7 @@ public class Bera implements GameLifeCycle{
         }
 
         resourcesFolders.addAll(tempResourcesFolders);
+        log.info("RESSOURCES FOLDER : {}", resourcesFolders);
 
         directoriesCount = resourcesFolders.size();
 
@@ -258,18 +277,19 @@ public class Bera implements GameLifeCycle{
         String question = null;
         List<Image> pictograms = null;
 
+        final String folder = resourcesFolders.remove(this.indexFileImage);
+
+        final Set<String> files = ResourceFileManager.getResourcePaths(folder);
+        
         for (int i = 0; i < numberOfImagesToDisplayPerRound; i++) {
 
-            final String folder = resourcesFolders.remove(this.startIndex);
-
-            final Set<String> files = ResourceFileManager.getResourcePaths(folder);
-
             final String randomImageFile = (String) files.toArray()[i];
+            log.info("RANDOM IMAGE FILE : {}", randomImageFile);
 
             final net.gazeplay.games.bera.PictureCard pictureCard = new net.gazeplay.games.bera.PictureCard(gameSizing.width * posX + gameSizing.shift,
                 gameSizing.height * posY, gameSizing.width, gameSizing.height, gameContext,
                 winnerImageIndexAmongDisplayedImages == i, randomImageFile + "", stats, this);
-
+            
             pictureCardList.add(pictureCard);
 
             final TargetAOI targetAOI = new TargetAOI(gameSizing.width * (posX + 0.25), gameSizing.height * (posY + 1), (int) gameSizing.height,
@@ -286,7 +306,7 @@ public class Bera implements GameLifeCycle{
         }
 
         Collections.shuffle(pictureCardList);
-
+        
         return new net.gazeplay.games.bera.RoundDetails(pictureCardList, winnerImageIndexAmongDisplayedImages, questionSoundPath, question,
             pictograms);
     }
@@ -306,7 +326,201 @@ public class Bera implements GameLifeCycle{
         gameContext.getChildren().addAll(error);
     }
 
-    public void indexFile() {
-        startIndex++;
+    public void increaseIndexFileImage(boolean correctAnswer){
+        this.calculateStats(this.indexFileImage, correctAnswer);
+        this.indexFileImage = this.indexFileImage + 1;
+
+    }
+
+    private void calculateStats(int index, boolean correctAnswer){
+        if (correctAnswer){
+            switch (index){
+
+                case 0:
+                    this.totalPhonology += 1;
+                    this.complexScoreItemsPhonology += 1;
+                    this.scoreLeftTargetItemsPhonology += 1;
+                    break;
+
+                case 1:
+                    this.totalPhonology += 1;
+                    this.complexScoreItemsPhonology += 1;
+                    this.scoreRightTargetItemsPhonology += 1;
+                    break;
+
+                case 2:
+                    this.totalSemantic += 1;
+                    this.simpleScoreItemsSemantic += 1;
+                    this.frequentScoreItemSemantic += 1;
+                    this.scoreLeftTargetItemsSemantic += 1;
+                    break;
+
+                case 3:
+                    this.totalPhonology += 1;
+                    this.simpleScoreItemsPhonology += 1;
+                    this.scoreLeftTargetItemsPhonology += 1;
+                    break;
+
+                case 4:
+                    this.totalSemantic += 1;
+                    this.complexScoreItemsSemantic += 1;
+                    this.frequentScoreItemSemantic += 1;
+                    this.scoreRightTargetItemsSemantic += 1;
+                    break;
+
+                case 5:
+                    this.totalSemantic += 1;
+                    this.simpleScoreItemsSemantic += 1;
+                    this.frequentScoreItemSemantic += 1;
+                    this.scoreLeftTargetItemsSemantic += 1;
+                    break;
+
+                case 6:
+                    this.totalSemantic += 1;
+                    this.simpleScoreItemsSemantic += 1;
+                    this.infrequentScoreItemSemantic += 1;
+                    this.scoreLeftTargetItemsSemantic += 1;
+                    break;
+
+                case 7:
+                    this.totalPhonology += 1;
+                    this.complexScoreItemsPhonology += 1;
+                    this.scoreRightTargetItemsPhonology += 1;
+                    break;
+
+                case 8:
+                    this.totalSemantic += 1;
+                    this.complexScoreItemsSemantic += 1;
+                    this.frequentScoreItemSemantic += 1;
+                    this.scoreLeftTargetItemsSemantic += 1;
+                    break;
+
+                case 9:
+                    this.totalSemantic += 1;
+                    this.simpleScoreItemsSemantic += 1;
+                    this.frequentScoreItemSemantic += 1;
+                    this.scoreRightTargetItemsSemantic += 1;
+                    break;
+
+                case 10:
+                    this.totalSemantic += 1;
+                    this.complexScoreItemsSemantic += 1;
+                    this.infrequentScoreItemSemantic += 1;
+                    this.scoreRightTargetItemsSemantic += 1;
+                    break;
+
+                case 11:
+                    this.totalPhonology += 1;
+                    this.complexScoreItemsPhonology += 1;
+                    this.scoreRightTargetItemsPhonology += 1;
+                    break;
+
+                case 12:
+                    this.totalPhonology += 1;
+                    this.complexScoreItemsPhonology += 1;
+                    this.scoreLeftTargetItemsPhonology += 1;
+                    break;
+
+                case 13:
+                    this.totalPhonology += 1;
+                    this.simpleScoreItemsPhonology += 1;
+                    this.scoreRightTargetItemsPhonology += 1;
+                    break;
+
+                case 14:
+                    this.totalSemantic += 1;
+                    this.complexScoreItemsSemantic += 1;
+                    this.infrequentScoreItemSemantic += 1;
+                    this.scoreRightTargetItemsSemantic += 1;
+                    break;
+
+                case 15:
+                    this.totalPhonology += 1;
+                    this.simpleScoreItemsPhonology += 1;
+                    this.scoreRightTargetItemsPhonology += 1;
+                    break;
+
+                case 16:
+                    this.totalPhonology += 1;
+                    this.simpleScoreItemsPhonology += 1;
+                    this.scoreLeftTargetItemsPhonology += 1;
+                    break;
+
+                case 17:
+                    this.totalSemantic += 1;
+                    this.simpleScoreItemsSemantic += 1;
+                    this.infrequentScoreItemSemantic += 1;
+                    this.scoreLeftTargetItemsSemantic += 1;
+                    break;
+
+                case 18:
+                    this.totalSemantic += 1;
+                    this.complexScoreItemsSemantic += 1;
+                    this.infrequentScoreItemSemantic += 1;
+                    this.scoreRightTargetItemsSemantic += 1;
+                    break;
+
+                case 19:
+                    this.totalPhonology += 1;
+                    this.simpleScoreItemsPhonology += 1;
+                    this.scoreLeftTargetItemsPhonology += 1;
+                    break;
+            }
+        }
+    }
+
+    public void finalStats(){
+        this.totalWordComprehension = this.scoreLeftTargetItemsPhonology + this.scoreLeftTargetItemsPhonology + this.scoreLeftTargetItemsSemantic + this.scoreRightTargetItemsSemantic;
+        this.total = this.totalWordComprehension + this.totalItemsAddedManually;
+
+        log.info("PHONOLOGY");
+        log.info("Total Phonology : {}/10", this.totalPhonology);
+        log.info("Simple Score Items : {}/5", this.simpleScoreItemsPhonology);
+        log.info("Complex Score Items : {}/5", this.complexScoreItemsPhonology);
+        log.info("Score Left Target Items : {}/5", this.scoreLeftTargetItemsPhonology);
+        log.info("Score Right Target Items : {}/5", this.scoreRightTargetItemsPhonology);
+
+        log.info("SEMANTICS");
+        log.info("Total Semantic : {}/10", this.totalSemantic);
+        log.info("Simple Score Items : {}/5", this.simpleScoreItemsSemantic);
+        log.info("Complex Score Items : {}/5", this.complexScoreItemsSemantic);
+        log.info("Frequent Score Item Semantic : {}/5", this.frequentScoreItemSemantic);
+        log.info("Infrequent Score Item Semantic : {}/5", this.infrequentScoreItemSemantic);
+        log.info("Score Left Target Items : {}/5", this.scoreLeftTargetItemsSemantic);
+        log.info("Score Right Target Items : {}/5", this.scoreRightTargetItemsSemantic);
+
+        log.info("WORD COMPREHENSION");
+        log.info("Total Word Comprehension : {}/20", this.totalWordComprehension);
+        log.info("Total Items Added Manually : {}/20", this.totalItemsAddedManually);
+        log.info("Total : {}/20", this.total);
+
+        FileWriter statsFile;
+        try {
+            statsFile = new FileWriter("statsBera.csv");
+            statsFile.append("PHONOLOGY \n");
+            statsFile.append("Total Phonology : ").append(String.valueOf(this.totalPhonology)).append("/10 \n");
+            statsFile.append("Simple Score Items : ").append(String.valueOf(this.simpleScoreItemsPhonology)).append("/5 \n");
+            statsFile.append("Complex Score Items : ").append(String.valueOf(this.complexScoreItemsPhonology)).append("/5 \n");
+            statsFile.append("Score Left Target Items : ").append(String.valueOf(this.scoreLeftTargetItemsPhonology)).append("/5 \n");
+            statsFile.append("Score Right Target Items : ").append(String.valueOf(this.scoreRightTargetItemsPhonology)).append("/5 \n");
+            statsFile.append("\n");
+            statsFile.append("SEMANTICS \n");
+            statsFile.append("Total Semantic : ").append(String.valueOf(this.totalSemantic)).append("/10 \n");
+            statsFile.append("Simple Score Items : ").append(String.valueOf(this.simpleScoreItemsSemantic)).append("/5 \n");
+            statsFile.append("Complex Score Items : ").append(String.valueOf(this.complexScoreItemsSemantic)).append("/5 \n");
+            statsFile.append("Frequent Score Item Semantic : ").append(String.valueOf(this.frequentScoreItemSemantic)).append("/5 \n");
+            statsFile.append("Infrequent Score Item Semantic : ").append(String.valueOf(this.infrequentScoreItemSemantic)).append("/5 \n");
+            statsFile.append("Score Left Target Items : ").append(String.valueOf(this.scoreLeftTargetItemsSemantic)).append("/5 \n");
+            statsFile.append("Score Right Target Items : ").append(String.valueOf(this.scoreRightTargetItemsSemantic)).append("/5 \n");
+            statsFile.append("\n");
+            statsFile.append("WORD COMPREHENSION \n");
+            statsFile.append("Total Word Comprehension : ").append(String.valueOf(this.totalWordComprehension)).append("/20 \n");
+            statsFile.append("Total Items Added Manually : ").append(String.valueOf(this.totalItemsAddedManually)).append("/20 \n");
+            statsFile.append("Total : ").append(String.valueOf(this.total)).append("/20 \n");
+            statsFile.close();
+        }catch (Exception e){
+            log.info("Error creation csv for Bera stats game !");
+            e.printStackTrace();
+        }
     }
 }
