@@ -145,6 +145,7 @@ class PictureCard extends Group {
     public void onCorrectCardSelected(Bera gameInstance) {
 
         if (gameInstance.indexFileImage == 19){
+            gameInstance.increaseIndexFileImage(true);
             this.endGame();
         }else {
             gameInstance.increaseIndexFileImage(true);

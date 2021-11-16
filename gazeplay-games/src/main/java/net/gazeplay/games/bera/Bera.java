@@ -233,6 +233,7 @@ public class Bera implements GameLifeCycle{
 
         // Here we filter out any unwanted resource folders, based on the difficulty JSON file
         Set<String> difficultySet;
+
         try {
             SourceSet sourceSet = new SourceSet(resourcesDirectory + "/difficulties.json");
             difficultySet = (sourceSet.getResources(Difficulty.NORMAL));
@@ -242,7 +243,6 @@ public class Bera implements GameLifeCycle{
         }
 
         Set<String> tempResourcesFolders = ResourceFileManager.getResourceFolders(imagesDirectory);
-        log.info("RESSOURCES FILE MANAGER : {}", tempResourcesFolders);
 
         // If nothing can be found we take the entire folder contents.
         if (!difficultySet.isEmpty()) {
@@ -254,7 +254,7 @@ public class Bera implements GameLifeCycle{
         }
 
         resourcesFolders.addAll(tempResourcesFolders);
-        log.info("RESSOURCES FOLDER : {}", resourcesFolders);
+        Collections.sort(resourcesFolders);
 
         directoriesCount = resourcesFolders.size();
 
@@ -269,6 +269,12 @@ public class Bera implements GameLifeCycle{
         int posX = 0;
         int posY = 0;
 
+        boolean winnerP1;
+        boolean winnerP2;
+
+        String imageP1 = "";
+        String imageP2 = "";
+
         final GameSizing gameSizing = new GameSizingComputer(nbLines, nbColumns, fourThree)
             .computeGameSizing(gameContext.getGamePanelDimensionProvider().getDimension2D());
 
@@ -280,32 +286,57 @@ public class Bera implements GameLifeCycle{
         final String folder = resourcesFolders.remove(this.indexFileImage);
 
         final Set<String> files = ResourceFileManager.getResourcePaths(folder);
-        
-        for (int i = 0; i < numberOfImagesToDisplayPerRound; i++) {
 
-            final String randomImageFile = (String) files.toArray()[i];
-            log.info("RANDOM IMAGE FILE : {}", randomImageFile);
+        String randomImageFile1 = (String) files.toArray()[0];
+        String randomImageFile2 = (String) files.toArray()[1];
 
-            final net.gazeplay.games.bera.PictureCard pictureCard = new net.gazeplay.games.bera.PictureCard(gameSizing.width * posX + gameSizing.shift,
-                gameSizing.height * posY, gameSizing.width, gameSizing.height, gameContext,
-                winnerImageIndexAmongDisplayedImages == i, randomImageFile + "", stats, this);
-            
-            pictureCardList.add(pictureCard);
-
-            final TargetAOI targetAOI = new TargetAOI(gameSizing.width * (posX + 0.25), gameSizing.height * (posY + 1), (int) gameSizing.height,
-                System.currentTimeMillis());
-            targetAOIList.add(targetAOI);
-
-
-            if ((i + 1) % nbColumns != 0) {
-                posX++;
-            } else {
-                posY++;
-                posX = 0;
-            }
+        if (randomImageFile1.contains("First")){
+            imageP1 = randomImageFile1;
+            imageP2 = randomImageFile2;
+        }else {
+            imageP1 = randomImageFile2;
+            imageP2 = randomImageFile1;
         }
 
-        Collections.shuffle(pictureCardList);
+        if (imageP1.contains("Correct")){
+            winnerP1 = true;
+            winnerP2 = false;
+        }else {
+            winnerP1 = false;
+            winnerP2 = true;
+        }
+
+        final net.gazeplay.games.bera.PictureCard pictureCard1 = new net.gazeplay.games.bera.PictureCard(
+            gameSizing.width * posX + gameSizing.shift,
+            gameSizing.height * posY, gameSizing.width, gameSizing.height, gameContext,
+            winnerP1, imageP1 + "", stats, this);
+            
+        pictureCardList.add(pictureCard1);
+
+        final TargetAOI targetAOI1 = new TargetAOI(
+            gameSizing.width * (posX + 0.25),
+            gameSizing.height * (posY + 1),
+            (int) gameSizing.height,
+            System.currentTimeMillis());
+
+        targetAOIList.add(targetAOI1);
+
+        posX++;
+
+        final net.gazeplay.games.bera.PictureCard pictureCard2 = new net.gazeplay.games.bera.PictureCard(
+            gameSizing.width * posX + gameSizing.shift,
+            gameSizing.height * posY, gameSizing.width, gameSizing.height, gameContext,
+            winnerP2, imageP2 + "", stats, this);
+
+        pictureCardList.add(pictureCard2);
+
+        final TargetAOI targetAOI2 = new TargetAOI(
+            gameSizing.width * (posX + 0.25),
+            gameSizing.height * (posY + 1),
+            (int) gameSizing.height,
+            System.currentTimeMillis());
+
+        targetAOIList.add(targetAOI2);
         
         return new net.gazeplay.games.bera.RoundDetails(pictureCardList, winnerImageIndexAmongDisplayedImages, questionSoundPath, question,
             pictograms);
@@ -470,33 +501,15 @@ public class Bera implements GameLifeCycle{
     }
 
     public void finalStats(){
-        this.totalWordComprehension = this.scoreLeftTargetItemsPhonology + this.scoreLeftTargetItemsPhonology + this.scoreLeftTargetItemsSemantic + this.scoreRightTargetItemsSemantic;
+        this.totalWordComprehension = this.scoreLeftTargetItemsPhonology +
+            this.scoreRightTargetItemsPhonology +
+            this.scoreLeftTargetItemsSemantic +
+            this.scoreRightTargetItemsSemantic;
         this.total = this.totalWordComprehension + this.totalItemsAddedManually;
-
-        log.info("PHONOLOGY");
-        log.info("Total Phonology : {}/10", this.totalPhonology);
-        log.info("Simple Score Items : {}/5", this.simpleScoreItemsPhonology);
-        log.info("Complex Score Items : {}/5", this.complexScoreItemsPhonology);
-        log.info("Score Left Target Items : {}/5", this.scoreLeftTargetItemsPhonology);
-        log.info("Score Right Target Items : {}/5", this.scoreRightTargetItemsPhonology);
-
-        log.info("SEMANTICS");
-        log.info("Total Semantic : {}/10", this.totalSemantic);
-        log.info("Simple Score Items : {}/5", this.simpleScoreItemsSemantic);
-        log.info("Complex Score Items : {}/5", this.complexScoreItemsSemantic);
-        log.info("Frequent Score Item Semantic : {}/5", this.frequentScoreItemSemantic);
-        log.info("Infrequent Score Item Semantic : {}/5", this.infrequentScoreItemSemantic);
-        log.info("Score Left Target Items : {}/5", this.scoreLeftTargetItemsSemantic);
-        log.info("Score Right Target Items : {}/5", this.scoreRightTargetItemsSemantic);
-
-        log.info("WORD COMPREHENSION");
-        log.info("Total Word Comprehension : {}/20", this.totalWordComprehension);
-        log.info("Total Items Added Manually : {}/20", this.totalItemsAddedManually);
-        log.info("Total : {}/20", this.total);
 
         FileWriter statsFile;
         try {
-            statsFile = new FileWriter("statsBera.csv");
+            statsFile = new FileWriter("data/bera/statsBera.csv");
             statsFile.append("PHONOLOGY \n");
             statsFile.append("Total Phonology : ").append(String.valueOf(this.totalPhonology)).append("/10 \n");
             statsFile.append("Simple Score Items : ").append(String.valueOf(this.simpleScoreItemsPhonology)).append("/5 \n");
