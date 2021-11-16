@@ -113,7 +113,7 @@ class PictureCard extends Group {
 
             log.debug("FINISHED");
 
-            if (!this.alreadySee){
+            if (this.alreadySee){
                 selected = true;
                 imageRectangle.removeEventFilter(MouseEvent.ANY, customInputEventHandlerMouse);
                 imageRectangle.removeEventFilter(GazeEvent.ANY, customInputEventHandlerMouse);
