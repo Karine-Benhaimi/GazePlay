@@ -1,12 +1,9 @@
 package net.gazeplay.games.bera;
 
-import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Dimension2D;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
@@ -26,6 +23,7 @@ import net.gazeplay.commons.utils.stats.TargetAOI;
 
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -71,6 +69,9 @@ public class Bera implements GameLifeCycle{
     private final ReplayablePseudoRandom randomGenerator;
 
     private final ArrayList<TargetAOI> targetAOIList;
+
+    private Multilinguism translate;
+    private Configuration config;
 
     public CustomInputEventHandlerKeyboard customInputEventHandlerKeyboard = new CustomInputEventHandlerKeyboard();
 
@@ -526,29 +527,33 @@ public class Bera implements GameLifeCycle{
             this.scoreRightTargetItemsSemantic;
         this.total = this.totalWordComprehension + this.totalItemsAddedManually;
 
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        SimpleDateFormat timeFormat = new SimpleDateFormat("HH-mm-ss");
+        Date date = new Date();
+
         FileWriter statsFile;
         try {
-            statsFile = new FileWriter("gazeplay-games/src/main/resources/data/bera/statsBera.csv", true);
+            statsFile = new FileWriter("gazeplay-games/src/main/resources/data/bera/statsBera" + "_" + dateFormat.format(date) + "_" + timeFormat.format(date) + ".csv");
             statsFile.append("PHONOLOGY \n");
-            statsFile.append("Total Phonology : ").append(String.valueOf(this.totalPhonology)).append("/10 \n");
-            statsFile.append("Simple Score Items : ").append(String.valueOf(this.simpleScoreItemsPhonology)).append("/5 \n");
-            statsFile.append("Complex Score Items : ").append(String.valueOf(this.complexScoreItemsPhonology)).append("/5 \n");
-            statsFile.append("Score Left Target Items : ").append(String.valueOf(this.scoreLeftTargetItemsPhonology)).append("/5 \n");
-            statsFile.append("Score Right Target Items : ").append(String.valueOf(this.scoreRightTargetItemsPhonology)).append("/5 \n");
+            statsFile.append(" - Total Phonology : ").append(String.valueOf(this.totalPhonology)).append("/10 \n");
+            statsFile.append(" - Simple Score Items : ").append(String.valueOf(this.simpleScoreItemsPhonology)).append("/5 \n");
+            statsFile.append(" - Complex Score Items : ").append(String.valueOf(this.complexScoreItemsPhonology)).append("/5 \n");
+            statsFile.append(" - Score Left Target Items : ").append(String.valueOf(this.scoreLeftTargetItemsPhonology)).append("/5 \n");
+            statsFile.append(" - Score Right Target Items : ").append(String.valueOf(this.scoreRightTargetItemsPhonology)).append("/5 \n");
             statsFile.append("\n");
             statsFile.append("SEMANTICS \n");
-            statsFile.append("Total Semantic : ").append(String.valueOf(this.totalSemantic)).append("/10 \n");
-            statsFile.append("Simple Score Items : ").append(String.valueOf(this.simpleScoreItemsSemantic)).append("/5 \n");
-            statsFile.append("Complex Score Items : ").append(String.valueOf(this.complexScoreItemsSemantic)).append("/5 \n");
-            statsFile.append("Frequent Score Item Semantic : ").append(String.valueOf(this.frequentScoreItemSemantic)).append("/5 \n");
-            statsFile.append("Infrequent Score Item Semantic : ").append(String.valueOf(this.infrequentScoreItemSemantic)).append("/5 \n");
-            statsFile.append("Score Left Target Items : ").append(String.valueOf(this.scoreLeftTargetItemsSemantic)).append("/5 \n");
-            statsFile.append("Score Right Target Items : ").append(String.valueOf(this.scoreRightTargetItemsSemantic)).append("/5 \n");
+            statsFile.append(" - Total Semantic : ").append(String.valueOf(this.totalSemantic)).append("/10 \n");
+            statsFile.append(" - Simple Score Items : ").append(String.valueOf(this.simpleScoreItemsSemantic)).append("/5 \n");
+            statsFile.append(" - Complex Score Items : ").append(String.valueOf(this.complexScoreItemsSemantic)).append("/5 \n");
+            statsFile.append(" - Frequent Score Item Semantic : ").append(String.valueOf(this.frequentScoreItemSemantic)).append("/5 \n");
+            statsFile.append(" - Infrequent Score Item Semantic : ").append(String.valueOf(this.infrequentScoreItemSemantic)).append("/5 \n");
+            statsFile.append(" - Score Left Target Items : ").append(String.valueOf(this.scoreLeftTargetItemsSemantic)).append("/5 \n");
+            statsFile.append(" - Score Right Target Items : ").append(String.valueOf(this.scoreRightTargetItemsSemantic)).append("/5 \n");
             statsFile.append("\n");
             statsFile.append("WORD COMPREHENSION \n");
-            statsFile.append("Total Word Comprehension : ").append(String.valueOf(this.totalWordComprehension)).append("/20 \n");
-            statsFile.append("Total Items Added Manually : ").append(String.valueOf(this.totalItemsAddedManually)).append("/20 \n");
-            statsFile.append("Total : ").append(String.valueOf(this.total)).append("/20 \n");
+            statsFile.append(" - Total Word Comprehension : ").append(String.valueOf(this.totalWordComprehension)).append("/20 \n");
+            statsFile.append(" - Total Items Added Manually : ").append(String.valueOf(this.totalItemsAddedManually)).append("/20 \n");
+            statsFile.append(" - Total : ").append(String.valueOf(this.total)).append("/20 \n");
             statsFile.close();
         }catch (Exception e){
             log.info("Error creation csv for Bera stats game !");
