@@ -9,6 +9,7 @@ import javafx.scene.Group;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
@@ -118,7 +119,7 @@ class PictureCard extends Group {
                 imageRectangle.removeEventFilter(GazeEvent.ANY, customInputEventHandlerMouse);
                 gameContext.getGazeDeviceManager().removeEventFilter(imageRectangle);
                 if (winner) {
-                    onCorrectCardSelected(gameInstance);
+                    onCorrectCardSelected();
                 } else {
                     // bad card
                     onWrongCardSelected(gameInstance);
@@ -142,7 +143,7 @@ class PictureCard extends Group {
         this.getChildren().add(progressIndicator);
     }
 
-    public void onCorrectCardSelected(Bera gameInstance) {
+    public void onCorrectCardSelected() {
 
         if (gameInstance.indexFileImage == 19){
             gameInstance.increaseIndexFileImage(true);

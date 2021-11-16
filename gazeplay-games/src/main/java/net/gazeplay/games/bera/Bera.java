@@ -1,7 +1,12 @@
 package net.gazeplay.games.bera;
 
+import javafx.event.ActionEvent;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.geometry.Dimension2D;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
@@ -67,6 +72,8 @@ public class Bera implements GameLifeCycle{
 
     private final ArrayList<TargetAOI> targetAOIList;
 
+    public CustomInputEventHandlerKeyboard customInputEventHandlerKeyboard = new CustomInputEventHandlerKeyboard();
+
     public Bera(final boolean fourThree, final IGameContext gameContext, final Stats stats) {
         this.gameContext = gameContext;
         this.fourThree = fourThree;
@@ -76,6 +83,8 @@ public class Bera implements GameLifeCycle{
         this.gameContext.startTimeLimiter();
         this.randomGenerator = new ReplayablePseudoRandom();
         this.stats.setGameSeed(randomGenerator.getSeed());
+
+        this.gameContext.getPrimaryScene().addEventFilter(KeyEvent.KEY_PRESSED, customInputEventHandlerKeyboard);
     }
 
     public Bera(final boolean fourThree, final IGameContext gameContext, final Stats stats, double gameSeed) {
@@ -86,10 +95,13 @@ public class Bera implements GameLifeCycle{
         this.gameContext.startScoreLimiter();
         this.gameContext.startTimeLimiter();
         this.randomGenerator = new ReplayablePseudoRandom(gameSeed);
+
+        this.gameContext.getPrimaryScene().addEventFilter(KeyEvent.KEY_PRESSED, customInputEventHandlerKeyboard);
     }
 
     @Override
     public void launch() {
+
         gameContext.setLimiterAvailable();
 
         final int numberOfImagesToDisplayPerRound = nbLines * nbColumns;
@@ -163,6 +175,8 @@ public class Bera implements GameLifeCycle{
         stats.notifyNewRoundReady();
 
         gameContext.onGameStarted(2000);
+
+        customInputEventHandlerKeyboard.ignoreAnyInput = false;
     }
 
     public void checkAllPictureCardChecked(){
@@ -500,6 +514,10 @@ public class Bera implements GameLifeCycle{
         }
     }
 
+    private void next(){
+        currentRoundDetails.getPictureCardList().get(0).onCorrectCardSelected();
+    }
+
     public void finalStats(){
         this.totalWordComprehension = this.scoreLeftTargetItemsPhonology +
             this.scoreRightTargetItemsPhonology +
@@ -509,7 +527,7 @@ public class Bera implements GameLifeCycle{
 
         FileWriter statsFile;
         try {
-            statsFile = new FileWriter("data/bera/statsBera.csv");
+            statsFile = new FileWriter("gazeplay-games/src/main/resources/data/bera/statsBera.csv", true);
             statsFile.append("PHONOLOGY \n");
             statsFile.append("Total Phonology : ").append(String.valueOf(this.totalPhonology)).append("/10 \n");
             statsFile.append("Simple Score Items : ").append(String.valueOf(this.simpleScoreItemsPhonology)).append("/5 \n");
@@ -534,6 +552,24 @@ public class Bera implements GameLifeCycle{
         }catch (Exception e){
             log.info("Error creation csv for Bera stats game !");
             e.printStackTrace();
+        }
+    }
+
+    private class CustomInputEventHandlerKeyboard implements EventHandler<KeyEvent> {
+
+        public boolean ignoreAnyInput = false;
+
+        @Override
+        public void handle(KeyEvent key) {
+
+            if (ignoreAnyInput) {
+                return;
+            }
+
+            if (key.getCode().getChar().equals("X")){
+                ignoreAnyInput = true;
+                next();
+            }
         }
     }
 }
