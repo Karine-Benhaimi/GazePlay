@@ -378,7 +378,7 @@ public class Bera implements GameLifeCycle{
     }
 
     private void calculateStats(int index, boolean correctAnswer){
-        if (correctAnswer){
+        if (correctAnswer && !customInputEventHandlerKeyboard.ignoreAnyInput){
             switch (index){
 
                 case 0:
@@ -515,6 +515,7 @@ public class Bera implements GameLifeCycle{
     }
 
     private void next(){
+        this.totalItemsAddedManually += 1;
         currentRoundDetails.getPictureCardList().get(0).onCorrectCardSelected();
     }
 
