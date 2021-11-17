@@ -796,7 +796,7 @@ public class Stats implements GazeMotionListener {
         return new File(outputDirectory, fileName);
     }
 
-    protected File getGameStatsOfTheDayDirectory() {
+    public File getGameStatsOfTheDayDirectory() {
         final File statsDirectory = GazePlayDirectories.getUserStatsFolder(ActiveConfigurationContext.getInstance().getUserName());
         final File gameDirectory = new File(statsDirectory, gameName);
         final File todayDirectory = new File(gameDirectory, DateUtils.today());
