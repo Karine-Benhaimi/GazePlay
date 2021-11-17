@@ -70,8 +70,7 @@ public class Bera implements GameLifeCycle{
 
     private final ArrayList<TargetAOI> targetAOIList;
 
-    private Multilinguism translate;
-    private Configuration config;
+    private boolean canRemoveItemManually = true;
 
     public CustomInputEventHandlerKeyboard customInputEventHandlerKeyboard = new CustomInputEventHandlerKeyboard();
 
@@ -102,6 +101,8 @@ public class Bera implements GameLifeCycle{
 
     @Override
     public void launch() {
+
+        this.canRemoveItemManually = true;
 
         gameContext.setLimiterAvailable();
 
@@ -515,9 +516,21 @@ public class Bera implements GameLifeCycle{
         }
     }
 
-    private void next(){
-        this.totalItemsAddedManually += 1;
-        currentRoundDetails.getPictureCardList().get(0).onCorrectCardSelected();
+    private void next(boolean value){
+        if (value){
+            this.totalItemsAddedManually += 1;
+            currentRoundDetails.getPictureCardList().get(0).onCorrectCardSelected();
+        }else {
+            currentRoundDetails.getPictureCardList().get(0).onWrongCardSelected();
+        }
+
+    }
+
+    private void removeItemAddedManually(){
+        if (this.totalItemsAddedManually != 0 && this.canRemoveItemManually){
+            this.totalItemsAddedManually -= 1;
+            this.canRemoveItemManually = false;
+        }
     }
 
     public void finalStats(){
@@ -534,26 +547,26 @@ public class Bera implements GameLifeCycle{
         FileWriter statsFile;
         try {
             statsFile = new FileWriter("gazeplay-games/src/main/resources/data/bera/statsBera" + "_" + dateFormat.format(date) + "_" + timeFormat.format(date) + ".csv");
-            statsFile.append("PHONOLOGY \n");
-            statsFile.append(" - Total Phonology : ").append(String.valueOf(this.totalPhonology)).append("/10 \n");
-            statsFile.append(" - Simple Score Items : ").append(String.valueOf(this.simpleScoreItemsPhonology)).append("/5 \n");
-            statsFile.append(" - Complex Score Items : ").append(String.valueOf(this.complexScoreItemsPhonology)).append("/5 \n");
-            statsFile.append(" - Score Left Target Items : ").append(String.valueOf(this.scoreLeftTargetItemsPhonology)).append("/5 \n");
-            statsFile.append(" - Score Right Target Items : ").append(String.valueOf(this.scoreRightTargetItemsPhonology)).append("/5 \n");
+            statsFile.append("PHONOLOGIE \n");
+            statsFile.append(" - Total Phonologie : ").append(String.valueOf(this.totalPhonology)).append("/10 \n");
+            statsFile.append(" - Score items simples : ").append(String.valueOf(this.simpleScoreItemsPhonology)).append("/5 \n");
+            statsFile.append(" - Score items complexes : ").append(String.valueOf(this.complexScoreItemsPhonology)).append("/5 \n");
+            statsFile.append(" - Score items cibles gauche : ").append(String.valueOf(this.scoreLeftTargetItemsPhonology)).append("/5 \n");
+            statsFile.append(" - Score items cibles droite : ").append(String.valueOf(this.scoreRightTargetItemsPhonology)).append("/5 \n");
             statsFile.append("\n");
-            statsFile.append("SEMANTICS \n");
+            statsFile.append("SEMANTIQUE \n");
             statsFile.append(" - Total Semantic : ").append(String.valueOf(this.totalSemantic)).append("/10 \n");
-            statsFile.append(" - Simple Score Items : ").append(String.valueOf(this.simpleScoreItemsSemantic)).append("/5 \n");
-            statsFile.append(" - Complex Score Items : ").append(String.valueOf(this.complexScoreItemsSemantic)).append("/5 \n");
-            statsFile.append(" - Frequent Score Item Semantic : ").append(String.valueOf(this.frequentScoreItemSemantic)).append("/5 \n");
-            statsFile.append(" - Infrequent Score Item Semantic : ").append(String.valueOf(this.infrequentScoreItemSemantic)).append("/5 \n");
-            statsFile.append(" - Score Left Target Items : ").append(String.valueOf(this.scoreLeftTargetItemsSemantic)).append("/5 \n");
-            statsFile.append(" - Score Right Target Items : ").append(String.valueOf(this.scoreRightTargetItemsSemantic)).append("/5 \n");
+            statsFile.append(" - Score items simples : ").append(String.valueOf(this.simpleScoreItemsSemantic)).append("/5 \n");
+            statsFile.append(" - Score items complexes : ").append(String.valueOf(this.complexScoreItemsSemantic)).append("/5 \n");
+            statsFile.append(" - Score items fréquents (F+) : ").append(String.valueOf(this.frequentScoreItemSemantic)).append("/5 \n");
+            statsFile.append(" - Score items peu fréquents (F-) : ").append(String.valueOf(this.infrequentScoreItemSemantic)).append("/5 \n");
+            statsFile.append(" - Score items cibles gauche : ").append(String.valueOf(this.scoreLeftTargetItemsSemantic)).append("/5 \n");
+            statsFile.append(" - Score items cibles droite : ").append(String.valueOf(this.scoreRightTargetItemsSemantic)).append("/5 \n");
             statsFile.append("\n");
-            statsFile.append("WORD COMPREHENSION \n");
-            statsFile.append(" - Total Word Comprehension : ").append(String.valueOf(this.totalWordComprehension)).append("/20 \n");
-            statsFile.append(" - Total Items Added Manually : ").append(String.valueOf(this.totalItemsAddedManually)).append("/20 \n");
-            statsFile.append(" - Total : ").append(String.valueOf(this.total)).append("/20 \n");
+            statsFile.append("COMPREHENSION DE MOTS \n");
+            statsFile.append(" - Total compréhension de mots : ").append(String.valueOf(this.totalWordComprehension)).append("/20 \n");
+            statsFile.append(" - Total items ajoutés manuellement : ").append(String.valueOf(this.totalItemsAddedManually)).append("/20 \n");
+            statsFile.append(" - Total compréhension de mots avec items sélectionnés manuellement: ").append(String.valueOf(this.total)).append("/20 \n");
             statsFile.close();
         }catch (Exception e){
             log.info("Error creation csv for Bera stats game !");
@@ -574,7 +587,12 @@ public class Bera implements GameLifeCycle{
 
             if (key.getCode().getChar().equals("X")){
                 ignoreAnyInput = true;
-                next();
+                next(true);
+            }else if (key.getCode().getChar().equals("C")){
+                ignoreAnyInput = true;
+                next(false);
+            }else if (key.getCode().getChar().equals("V")){
+                removeItemAddedManually();
             }
         }
     }

@@ -122,7 +122,7 @@ class PictureCard extends Group {
                     onCorrectCardSelected();
                 } else {
                     // bad card
-                    onWrongCardSelected(gameInstance);
+                    onWrongCardSelected();
                 }
             }else {
                 this.alreadySee = true;
@@ -165,7 +165,7 @@ class PictureCard extends Group {
 
     }
 
-    private void onWrongCardSelected(Bera gameInstance) {
+    public void onWrongCardSelected() {
 
         if (gameInstance.indexFileImage == 19){
             this.endGame();
