@@ -1,15 +1,15 @@
 package net.gazeplay.games.bera;
 
-import javafx.animation.*;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
-import javafx.geometry.Dimension2D;
 import javafx.scene.Group;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
@@ -43,16 +43,12 @@ class PictureCard extends Group {
 
     private final Stats stats;
     private final String imagePath;
-
+    private final PictureCard.CustomInputEventHandlerMouse customInputEventHandlerMouse;
+    private final Bera gameInstance;
     private ProgressIndicator progressIndicator;
     private Timeline progressIndicatorAnimationTimeLine;
-
     private boolean selected;
     private boolean alreadySee;
-
-    private final PictureCard.CustomInputEventHandlerMouse customInputEventHandlerMouse;
-
-    private final Bera gameInstance;
 
     PictureCard(double posX, double posY, double width, double height, @NonNull IGameContext gameContext,
                 boolean winner, @NonNull String imagePath, @NonNull Stats stats, Bera gameInstance) {
@@ -113,7 +109,7 @@ class PictureCard extends Group {
 
             log.debug("FINISHED");
 
-            if (this.alreadySee){
+            if (this.alreadySee) {
                 selected = true;
                 imageRectangle.removeEventFilter(MouseEvent.ANY, customInputEventHandlerMouse);
                 imageRectangle.removeEventFilter(GazeEvent.ANY, customInputEventHandlerMouse);
@@ -124,7 +120,7 @@ class PictureCard extends Group {
                     // bad card
                     onWrongCardSelected();
                 }
-            }else {
+            } else {
                 this.alreadySee = true;
                 customInputEventHandlerMouse.ignoreAnyInput = true;
                 this.newProgressIndicator();
@@ -133,11 +129,11 @@ class PictureCard extends Group {
         };
     }
 
-    public void setVisibleProgressIndicator(){
+    public void setVisibleProgressIndicator() {
         customInputEventHandlerMouse.ignoreAnyInput = false;
     }
 
-    public void newProgressIndicator(){
+    public void newProgressIndicator() {
         this.getChildren().remove(progressIndicator);
         this.progressIndicator = buildProgressIndicator(initialWidth, initialHeight);
         this.getChildren().add(progressIndicator);
@@ -145,10 +141,10 @@ class PictureCard extends Group {
 
     public void onCorrectCardSelected() {
 
-        if (gameInstance.indexFileImage == 19){
+        if (gameInstance.indexFileImage == 19) {
             gameInstance.increaseIndexFileImage(true);
             this.endGame();
-        }else {
+        } else {
             gameInstance.increaseIndexFileImage(true);
 
             stats.incrementNumberOfGoalsReached();
@@ -167,9 +163,9 @@ class PictureCard extends Group {
 
     public void onWrongCardSelected() {
 
-        if (gameInstance.indexFileImage == 19){
+        if (gameInstance.indexFileImage == 19) {
             this.endGame();
-        }else {
+        } else {
             gameInstance.increaseIndexFileImage(false);
 
             stats.incrementNumberOfGoalsReached();
@@ -266,6 +262,21 @@ class PictureCard extends Group {
         return result;
     }
 
+    public void endGame() {
+
+        progressIndicator.setVisible(false);
+        gameInstance.finalStats();
+        gameContext.updateScore(stats, gameInstance);
+
+        gameContext.playWinTransition(0, event -> {
+            gameInstance.dispose();
+
+            gameContext.clear();
+
+            gameContext.showRoundStats(stats, gameInstance);
+        });
+    }
+
     private class CustomInputEventHandlerMouse implements EventHandler<Event> {
 
         /**
@@ -312,21 +323,6 @@ class PictureCard extends Group {
             progressIndicator.setProgress(0);
         }
 
-    }
-
-    public void endGame(){
-
-        progressIndicator.setVisible(false);
-        gameInstance.finalStats();
-        gameContext.updateScore(stats, gameInstance);
-
-        gameContext.playWinTransition(0, event -> {
-            gameInstance.dispose();
-
-            gameContext.clear();
-
-            gameContext.showRoundStats(stats, gameInstance);
-        });
     }
 
 }

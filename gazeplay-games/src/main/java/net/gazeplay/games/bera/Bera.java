@@ -28,25 +28,27 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class Bera implements GameLifeCycle{
+public class Bera implements GameLifeCycle {
 
     private static final int NBMAXPICTO = 10;
     private static final double MAXSIZEPICTO = 250;
-
-    private Text questionText;
     private final String directoryRessource = "data/bera";
-
     private final int nbLines = 1;
     private final int nbColumns = 2;
     private final boolean fourThree;
-
+    private final IGameContext gameContext;
+    private final Stats stats;
+    private final ReplayablePseudoRandom randomGenerator;
+    private final ArrayList<TargetAOI> targetAOIList;
+    public int indexFileImage = 0;
+    public CustomInputEventHandlerKeyboard customInputEventHandlerKeyboard = new CustomInputEventHandlerKeyboard();
+    private Text questionText;
     //Phonology
     private int totalPhonology = 0;
     private int simpleScoreItemsPhonology = 0;
     private int complexScoreItemsPhonology = 0;
     private int scoreLeftTargetItemsPhonology = 0;
     private int scoreRightTargetItemsPhonology = 0;
-
     //Semantics
     private int totalSemantic = 0;
     private int simpleScoreItemsSemantic = 0;
@@ -55,24 +57,12 @@ public class Bera implements GameLifeCycle{
     private int infrequentScoreItemSemantic = 0;
     private int scoreLeftTargetItemsSemantic = 0;
     private int scoreRightTargetItemsSemantic = 0;
-
     //Word comprehension
     private int totalWordComprehension = 0;
     private int totalItemsAddedManually = 0;
     private int total = 0;
-
-    public int indexFileImage = 0;
-
-    private final IGameContext gameContext;
-    private final Stats stats;
     private RoundDetails currentRoundDetails;
-    private final ReplayablePseudoRandom randomGenerator;
-
-    private final ArrayList<TargetAOI> targetAOIList;
-
     private boolean canRemoveItemManually = true;
-
-    public CustomInputEventHandlerKeyboard customInputEventHandlerKeyboard = new CustomInputEventHandlerKeyboard();
 
     public Bera(final boolean fourThree, final IGameContext gameContext, final Stats stats) {
         this.gameContext = gameContext;
@@ -121,7 +111,7 @@ public class Bera implements GameLifeCycle{
         this.startGame();
     }
 
-    public void startGame(){
+    public void startGame() {
         final List<Rectangle> pictogramesList = new ArrayList<>(20); // storage of actual Pictogramm nodes in order to delete
 
         final List<Image> listOfPictos = currentRoundDetails.getPictos();
@@ -164,7 +154,7 @@ public class Bera implements GameLifeCycle{
         gameContext.getChildren().removeAll(pictogramesList);
 
         //log.debug("Adding {} pictures", currentRoundDetails.getPictureCardList().size());
-        if(currentRoundDetails != null) {
+        if (currentRoundDetails != null) {
             gameContext.getChildren().addAll(currentRoundDetails.getPictureCardList());
 
             for (final net.gazeplay.games.bera.PictureCard p : currentRoundDetails.getPictureCardList()) {
@@ -181,14 +171,14 @@ public class Bera implements GameLifeCycle{
         customInputEventHandlerKeyboard.ignoreAnyInput = false;
     }
 
-    public void checkAllPictureCardChecked(){
+    public void checkAllPictureCardChecked() {
         boolean check = true;
         for (final net.gazeplay.games.bera.PictureCard p : currentRoundDetails.getPictureCardList()) {
             if (!p.isAlreadySee()) {
                 check = false;
             }
         }
-        if (check){
+        if (check) {
             for (final net.gazeplay.games.bera.PictureCard p : currentRoundDetails.getPictureCardList()) {
                 p.setVisibleProgressIndicator();
             }
@@ -306,18 +296,18 @@ public class Bera implements GameLifeCycle{
         String randomImageFile1 = (String) files.toArray()[0];
         String randomImageFile2 = (String) files.toArray()[1];
 
-        if (randomImageFile1.contains("First")){
+        if (randomImageFile1.contains("First")) {
             imageP1 = randomImageFile1;
             imageP2 = randomImageFile2;
-        }else {
+        } else {
             imageP1 = randomImageFile2;
             imageP2 = randomImageFile1;
         }
 
-        if (imageP1.contains("Correct")){
+        if (imageP1.contains("Correct")) {
             winnerP1 = true;
             winnerP2 = false;
-        }else {
+        } else {
             winnerP1 = false;
             winnerP2 = true;
         }
@@ -326,7 +316,7 @@ public class Bera implements GameLifeCycle{
             gameSizing.width * posX + gameSizing.shift,
             gameSizing.height * posY, gameSizing.width, gameSizing.height, gameContext,
             winnerP1, imageP1 + "", stats, this);
-            
+
         pictureCardList.add(pictureCard1);
 
         final TargetAOI targetAOI1 = new TargetAOI(
@@ -353,7 +343,7 @@ public class Bera implements GameLifeCycle{
             System.currentTimeMillis());
 
         targetAOIList.add(targetAOI2);
-        
+
         return new net.gazeplay.games.bera.RoundDetails(pictureCardList, winnerImageIndexAmongDisplayedImages, questionSoundPath, question,
             pictograms);
     }
@@ -373,15 +363,15 @@ public class Bera implements GameLifeCycle{
         gameContext.getChildren().addAll(error);
     }
 
-    public void increaseIndexFileImage(boolean correctAnswer){
+    public void increaseIndexFileImage(boolean correctAnswer) {
         this.calculateStats(this.indexFileImage, correctAnswer);
         this.indexFileImage = this.indexFileImage + 1;
 
     }
 
-    private void calculateStats(int index, boolean correctAnswer){
-        if (correctAnswer && !customInputEventHandlerKeyboard.ignoreAnyInput){
-            switch (index){
+    private void calculateStats(int index, boolean correctAnswer) {
+        if (correctAnswer && !customInputEventHandlerKeyboard.ignoreAnyInput) {
+            switch (index) {
 
                 case 0:
                     this.totalPhonology += 1;
@@ -516,24 +506,24 @@ public class Bera implements GameLifeCycle{
         }
     }
 
-    private void next(boolean value){
-        if (value){
+    private void next(boolean value) {
+        if (value) {
             this.totalItemsAddedManually += 1;
             currentRoundDetails.getPictureCardList().get(0).onCorrectCardSelected();
-        }else {
+        } else {
             currentRoundDetails.getPictureCardList().get(0).onWrongCardSelected();
         }
 
     }
 
-    private void removeItemAddedManually(){
-        if (this.totalItemsAddedManually != 0 && this.canRemoveItemManually){
+    private void removeItemAddedManually() {
+        if (this.totalItemsAddedManually != 0 && this.canRemoveItemManually) {
             this.totalItemsAddedManually -= 1;
             this.canRemoveItemManually = false;
         }
     }
 
-    public void finalStats(){
+    public void finalStats() {
         this.totalWordComprehension = this.scoreLeftTargetItemsPhonology +
             this.scoreRightTargetItemsPhonology +
             this.scoreLeftTargetItemsSemantic +
@@ -568,7 +558,7 @@ public class Bera implements GameLifeCycle{
             statsFile.append(" - Total items ajoutés manuellement : ").append(String.valueOf(this.totalItemsAddedManually)).append("/20 \n");
             statsFile.append(" - Total compréhension de mots avec items sélectionnés manuellement: ").append(String.valueOf(this.total)).append("/20 \n");
             statsFile.close();
-        }catch (Exception e){
+        } catch (Exception e) {
             log.info("Error creation csv for Bera stats game !");
             e.printStackTrace();
         }
@@ -585,13 +575,13 @@ public class Bera implements GameLifeCycle{
                 return;
             }
 
-            if (key.getCode().getChar().equals("X")){
+            if (key.getCode().getChar().equals("X")) {
                 ignoreAnyInput = true;
                 next(true);
-            }else if (key.getCode().getChar().equals("C")){
+            } else if (key.getCode().getChar().equals("C")) {
                 ignoreAnyInput = true;
                 next(false);
-            }else if (key.getCode().getChar().equals("V")){
+            } else if (key.getCode().getChar().equals("V")) {
                 removeItemAddedManually();
             }
         }
