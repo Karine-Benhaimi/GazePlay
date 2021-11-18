@@ -267,14 +267,9 @@ class PictureCard extends Group {
         progressIndicator.setVisible(false);
         gameInstance.finalStats();
         gameContext.updateScore(stats, gameInstance);
-
-        gameContext.playWinTransition(0, event -> {
-            gameInstance.dispose();
-
-            gameContext.clear();
-
-            gameContext.showRoundStats(stats, gameInstance);
-        });
+        gameInstance.dispose();
+        gameContext.clear();
+        gameContext.showRoundStats(stats, gameInstance);
     }
 
     private class CustomInputEventHandlerMouse implements EventHandler<Event> {

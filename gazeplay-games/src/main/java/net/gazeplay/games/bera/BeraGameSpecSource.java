@@ -10,7 +10,7 @@ public class BeraGameSpecSource implements GameSpecSource {
     @Override
     public GameSpec getGameSpec() {
         return new GameSpec(
-            GameSummary.builder().nameCode("WhereIsItBera").gameThumbnail("data/Thumbnails/whereisit.png")
+            GameSummary.builder().nameCode("Bera").gameThumbnail("data/Thumbnails/whereisit.png")
                 .category(GameCategories.Category.SELECTION)
                 .category(GameCategories.Category.MEMORIZATION).build(),
             new BeraGameLauncher());
