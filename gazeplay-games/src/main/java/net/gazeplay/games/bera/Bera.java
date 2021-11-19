@@ -155,15 +155,12 @@ public class Bera implements GameLifeCycle {
 
         gameContext.getChildren().removeAll(pictogramesList);
 
-        //log.debug("Adding {} pictures", currentRoundDetails.getPictureCardList().size());
-        if (currentRoundDetails != null) {
-            gameContext.getChildren().addAll(currentRoundDetails.getPictureCardList());
+        gameContext.getChildren().addAll(currentRoundDetails.getPictureCardList());
 
-            for (final net.gazeplay.games.bera.PictureCard p : currentRoundDetails.getPictureCardList()) {
-                //  log.debug("p = {}", p);
-                p.toFront();
-                p.setOpacity(1);
-            }
+        for (final net.gazeplay.games.bera.PictureCard p : currentRoundDetails.getPictureCardList()) {
+            //  log.debug("p = {}", p);
+            p.toFront();
+            p.setOpacity(1);
         }
 
         stats.notifyNewRoundReady();
@@ -503,6 +500,9 @@ public class Bera implements GameLifeCycle {
                     this.totalPhonology += 1;
                     this.simpleScoreItemsPhonology += 1;
                     this.scoreLeftTargetItemsPhonology += 1;
+                    break;
+
+                default:
                     break;
             }
         }
