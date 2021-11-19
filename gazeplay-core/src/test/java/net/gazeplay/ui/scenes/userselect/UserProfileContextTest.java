@@ -122,22 +122,6 @@ class UserProfileContextTest {
     }
 
     @Test
-    void shouldFindAllUsersProfiles() {
-        new MockUp<GazePlayDirectories>() {
-            @mockit.Mock
-            public File getProfilesDirectory() {
-                return new File(profileRoot);
-            }
-        };
-
-        List<String> result = UserProfileContext.findAllUsersProfiles();
-
-        assertTrue(result.contains(profileDirectory));
-        assertFalse(result.contains(hiddenDirectory));
-        assertFalse(result.contains(exampleFile));
-    }
-
-    @Test
     void shouldReturnEmptyListIfNoProfiles() {
         new MockUp<GazePlayDirectories>() {
             @mockit.Mock
@@ -149,23 +133,6 @@ class UserProfileContextTest {
         List<String> result = UserProfileContext.findAllUsersProfiles();
 
         assertEquals(Collections.emptyList(), result);
-    }
-
-    @Test
-    void shouldCreateUserPickerChoicePane() {
-        new MockUp<GazePlayDirectories>() {
-            @mockit.Mock
-            public File getProfilesDirectory() {
-                return new File(profileRoot);
-            }
-        };
-
-        UserProfileContext context = new UserProfileContext(mockGazePlay);
-
-        ScrollPane result = context.createUserPickerChoicePane(mockGazePlay);
-        FlowPane panel = (FlowPane) result.getContent();
-
-        assertEquals(3, panel.getChildren().size()); // Should render Default, New User and test1
     }
 
     @Test
