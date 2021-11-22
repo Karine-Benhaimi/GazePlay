@@ -1,4 +1,4 @@
-package net.gazeplay.games.bera;
+package net.gazeplay.games.beraV2;
 
 import javafx.event.EventHandler;
 import javafx.geometry.Dimension2D;
@@ -31,17 +31,17 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class Bera implements GameLifeCycle {
+public class BeraV2 implements GameLifeCycle {
 
     private static final int NBMAXPICTO = 10;
     private static final double MAXSIZEPICTO = 250;
-    private final String directoryRessource = "data/bera";
+    private final String directoryRessource = "data/beraV2";
     private final int nbLines = 1;
     private final int nbColumns = 2;
     private final boolean fourThree;
     private final IGameContext gameContext;
     private final Stats stats;
-    private final BeraGameVariant gameVariant;
+    private final BeraV2GameVariant gameVariant;
     private final ReplayablePseudoRandom randomGenerator;
     private final ArrayList<TargetAOI> targetAOIList;
     private RoundDetails currentRoundDetails;
@@ -81,7 +81,7 @@ public class Bera implements GameLifeCycle {
     public CustomInputEventHandlerKeyboard customInputEventHandlerKeyboard = new CustomInputEventHandlerKeyboard();
     private boolean canRemoveItemManually = true;
 
-    public Bera(final boolean fourThree, final IGameContext gameContext, final Stats stats, final BeraGameVariant gameVariant) {
+    public BeraV2(final boolean fourThree, final IGameContext gameContext, final Stats stats, final BeraV2GameVariant gameVariant) {
         this.gameContext = gameContext;
         this.fourThree = fourThree;
         this.stats = stats;
@@ -95,7 +95,7 @@ public class Bera implements GameLifeCycle {
         this.gameContext.getPrimaryScene().addEventFilter(KeyEvent.KEY_PRESSED, customInputEventHandlerKeyboard);
     }
 
-    public Bera(final boolean fourThree, final IGameContext gameContext, final Stats stats, final BeraGameVariant gameVariant, double gameSeed) {
+    public BeraV2(final boolean fourThree, final IGameContext gameContext, final Stats stats, final BeraV2GameVariant gameVariant, double gameSeed) {
         this.gameContext = gameContext;
         this.fourThree = fourThree;
         this.stats = stats;
@@ -174,7 +174,7 @@ public class Bera implements GameLifeCycle {
 
         gameContext.getChildren().addAll(currentRoundDetails.getPictureCardList());
 
-        for (final net.gazeplay.games.bera.PictureCard p : currentRoundDetails.getPictureCardList()) {
+        for (final net.gazeplay.games.beraV2.PictureCard p : currentRoundDetails.getPictureCardList()) {
             //  log.debug("p = {}", p);
             p.toFront();
             p.setOpacity(1);
@@ -189,13 +189,13 @@ public class Bera implements GameLifeCycle {
 
     public void checkAllPictureCardChecked() {
         boolean check = true;
-        for (final net.gazeplay.games.bera.PictureCard p : currentRoundDetails.getPictureCardList()) {
+        for (final net.gazeplay.games.beraV2.PictureCard p : currentRoundDetails.getPictureCardList()) {
             if (!p.isAlreadySee()) {
                 check = false;
             }
         }
         if (check) {
-            for (final net.gazeplay.games.bera.PictureCard p : currentRoundDetails.getPictureCardList()) {
+            for (final net.gazeplay.games.beraV2.PictureCard p : currentRoundDetails.getPictureCardList()) {
                 p.setVisibleProgressIndicator();
             }
         }
@@ -216,7 +216,7 @@ public class Bera implements GameLifeCycle {
         stats.setTargetAOIList(targetAOIList);
     }
 
-    net.gazeplay.games.bera.RoundDetails pickAndBuildRandomPictures(final int numberOfImagesToDisplayPerRound, final int winnerImageIndexAmongDisplayedImages) {
+    net.gazeplay.games.beraV2.RoundDetails pickAndBuildRandomPictures(final int numberOfImagesToDisplayPerRound, final int winnerImageIndexAmongDisplayedImages) {
 
         final Configuration config = gameContext.getConfiguration();
 
@@ -227,7 +227,7 @@ public class Bera implements GameLifeCycle {
         final String resourcesDirectory = this.directoryRessource;
         String imagesDirectory = "";
 
-        if (gameVariant == BeraGameVariant.WORD_COMPREHENSION){
+        if (gameVariant == BeraV2GameVariant.WORD_COMPREHENSION_V2){
             imagesDirectory = resourcesDirectory + "/wordComprehension/";
             this.indexEndGame = 20;
         }else {
@@ -284,7 +284,7 @@ public class Bera implements GameLifeCycle {
         final GameSizing gameSizing = new GameSizingComputer(nbLines, nbColumns, fourThree)
             .computeGameSizing(gameContext.getGamePanelDimensionProvider().getDimension2D());
 
-        final List<net.gazeplay.games.bera.PictureCard> pictureCardList = new ArrayList<>();
+        final List<net.gazeplay.games.beraV2.PictureCard> pictureCardList = new ArrayList<>();
         String questionSoundPath = null;
         String question = null;
         List<Image> pictograms = null;
@@ -312,7 +312,7 @@ public class Bera implements GameLifeCycle {
             winnerP2 = true;
         }
 
-        final net.gazeplay.games.bera.PictureCard pictureCard1 = new net.gazeplay.games.bera.PictureCard(
+        final net.gazeplay.games.beraV2.PictureCard pictureCard1 = new net.gazeplay.games.beraV2.PictureCard(
             gameSizing.width * posX + gameSizing.shift,
             gameSizing.height * posY, gameSizing.width, gameSizing.height, gameContext,
             winnerP1, imageP1 + "", stats, this);
@@ -329,7 +329,7 @@ public class Bera implements GameLifeCycle {
 
         posX++;
 
-        final net.gazeplay.games.bera.PictureCard pictureCard2 = new net.gazeplay.games.bera.PictureCard(
+        final net.gazeplay.games.beraV2.PictureCard pictureCard2 = new net.gazeplay.games.beraV2.PictureCard(
             gameSizing.width * posX + gameSizing.shift,
             gameSizing.height * posY, gameSizing.width, gameSizing.height, gameContext,
             winnerP2, imageP2 + "", stats, this);
@@ -344,7 +344,7 @@ public class Bera implements GameLifeCycle {
 
         targetAOIList.add(targetAOI2);
 
-        return new net.gazeplay.games.bera.RoundDetails(pictureCardList, winnerImageIndexAmongDisplayedImages, questionSoundPath, question,
+        return new net.gazeplay.games.beraV2.RoundDetails(pictureCardList, winnerImageIndexAmongDisplayedImages, questionSoundPath, question,
             pictograms);
     }
 
@@ -370,7 +370,7 @@ public class Bera implements GameLifeCycle {
     }
 
     private void calculateStats(int index, boolean correctAnswer) {
-        if (correctAnswer && !customInputEventHandlerKeyboard.ignoreAnyInput && gameVariant == BeraGameVariant.WORD_COMPREHENSION) {
+        if (correctAnswer && !customInputEventHandlerKeyboard.ignoreAnyInput && gameVariant == BeraV2GameVariant.WORD_COMPREHENSION_V2) {
             switch (index) {
 
                 case 0:
@@ -506,24 +506,24 @@ public class Bera implements GameLifeCycle {
                 default:
                     break;
             }
-        }else if (correctAnswer && !customInputEventHandlerKeyboard.ignoreAnyInput && gameVariant == BeraGameVariant.SENTENCE_COMPREHENSION){
+        }else if (correctAnswer && !customInputEventHandlerKeyboard.ignoreAnyInput && gameVariant == BeraV2GameVariant.SENTENCE_COMPREHENSION_V2){
             switch (index){
                 case 0:
-                    this.totalMorphosyntax += 1;
-                    this.simpleScoreItemsMorphosyntax += 1;
-                    this.scoreRightTargetItemsMorphosyntax += 1;
-                    break;
-
-                case 1:
                     this.totalMorphosyntax += 1;
                     this.complexScoreItemsMorphosyntax += 1;
                     this.scoreLeftTargetItemsMorphosyntax += 1;
                     break;
 
-                case 2:
+                case 1:
                     this.totalMorphosyntax += 1;
                     this.simpleScoreItemsMorphosyntax += 1;
                     this.scoreRightTargetItemsMorphosyntax += 1;
+                    break;
+
+                case 2:
+                    this.totalMorphosyntax += 1;
+                    this.complexScoreItemsMorphosyntax += 1;
+                    this.scoreLeftTargetItemsMorphosyntax += 1;
                     break;
 
                 case 3:
@@ -547,24 +547,24 @@ public class Bera implements GameLifeCycle {
                 case 6:
                     this.totalMorphosyntax += 1;
                     this.simpleScoreItemsMorphosyntax += 1;
-                    this.scoreRightTargetItemsMorphosyntax += 1;
+                    this.scoreLeftTargetItemsMorphosyntax += 1;
                     break;
 
                 case 7:
                     this.totalMorphosyntax += 1;
-                    this.simpleScoreItemsMorphosyntax += 1;
-                    this.scoreLeftTargetItemsMorphosyntax += 1;
+                    this.complexScoreItemsMorphosyntax += 1;
+                    this.scoreRightTargetItemsMorphosyntax += 1;
                     break;
 
                 case 8:
                     this.totalMorphosyntax += 1;
-                    this.complexScoreItemsMorphosyntax += 1;
-                    this.scoreLeftTargetItemsMorphosyntax += 1;
+                    this.simpleScoreItemsMorphosyntax += 1;
+                    this.scoreRightTargetItemsMorphosyntax += 1;
                     break;
 
                 case 9:
                     this.totalMorphosyntax += 1;
-                    this.complexScoreItemsMorphosyntax += 1;
+                    this.simpleScoreItemsMorphosyntax += 1;
                     this.scoreRightTargetItemsMorphosyntax += 1;
                     break;
 
@@ -592,9 +592,9 @@ public class Bera implements GameLifeCycle {
     }
 
     public void finalStats() {
-        if (gameVariant == BeraGameVariant.WORD_COMPREHENSION){
+        if (gameVariant == BeraV2GameVariant.WORD_COMPREHENSION_V2){
             createFileWordComprehension();
-        }else if (gameVariant == BeraGameVariant.SENTENCE_COMPREHENSION){
+        }else if (gameVariant == BeraV2GameVariant.SENTENCE_COMPREHENSION_V2){
             createFileSentenceComprehension();
         }
     }
@@ -607,11 +607,11 @@ public class Bera implements GameLifeCycle {
         this.total = this.totalWordComprehension + this.totalItemsAddedManually;
 
         File pathDirectory = stats.getGameStatsOfTheDayDirectory();
-        String pathFile = "statsBeraComprehensionMots-" + DateUtils.dateTimeNow() + ".csv";
+        String pathFile = "statsBeraV2ComprehensionMots-" + DateUtils.dateTimeNow() + ".csv";
         File statsFile = new File(pathDirectory, pathFile);
 
         Date now = new Date();
-        SimpleDateFormat formatDate = new SimpleDateFormat("dd MMMM yyyy 'Ã ' HH:mm:ss");
+        SimpleDateFormat formatDate = new SimpleDateFormat("dd MMMM yyyy 'à' HH:mm:ss");
 
         try {
             PrintWriter out = new PrintWriter(statsFile, StandardCharsets.UTF_16);
@@ -625,21 +625,21 @@ public class Bera implements GameLifeCycle {
             out.append(" - Score items cibles droite : ").append(String.valueOf(this.scoreRightTargetItemsPhonology)).append("/5 \r\n");
             out.append("\r\n");
             out.append("SEMANTIQUE \r\n");
-            out.append(" - Total SÃ©mantique : ").append(String.valueOf(this.totalSemantic)).append("/10 \r\n");
+            out.append(" - Total Sémantique : ").append(String.valueOf(this.totalSemantic)).append("/10 \r\n");
             out.append(" - Score items simples : ").append(String.valueOf(this.simpleScoreItemsSemantic)).append("/5 \r\n");
             out.append(" - Score items complexes : ").append(String.valueOf(this.complexScoreItemsSemantic)).append("/5 \r\n");
-            out.append(" - Score items frÃ©quents (F+) : ").append(String.valueOf(this.frequentScoreItemSemantic)).append("/5 \r\n");
-            out.append(" - Score items peu frÃ©quents (F-) : ").append(String.valueOf(this.infrequentScoreItemSemantic)).append("/5 \r\n");
+            out.append(" - Score items fréquents (F+) : ").append(String.valueOf(this.frequentScoreItemSemantic)).append("/5 \r\n");
+            out.append(" - Score items peu fréquents (F-) : ").append(String.valueOf(this.infrequentScoreItemSemantic)).append("/5 \r\n");
             out.append(" - Score items cibles gauche : ").append(String.valueOf(this.scoreLeftTargetItemsSemantic)).append("/5 \r\n");
             out.append(" - Score items cibles droite : ").append(String.valueOf(this.scoreRightTargetItemsSemantic)).append("/5 \r\n");
             out.append("\r\n");
             out.append("COMPREHENSION DE MOTS \r\n");
-            out.append(" - Total comprÃ©hension de mots : ").append(String.valueOf(this.totalWordComprehension)).append("/20 \r\n");
-            out.append(" - Total items ajoutÃ©s manuellement : ").append(String.valueOf(this.totalItemsAddedManually)).append("/20 \r\n");
-            out.append(" - Total comprÃ©hension de mots avec items sÃ©lectionnÃ©s manuellement : ").append(String.valueOf(this.total)).append("/20 \r\n");
+            out.append(" - Total compréhension de mots : ").append(String.valueOf(this.totalWordComprehension)).append("/20 \r\n");
+            out.append(" - Total items ajoutés manuellement : ").append(String.valueOf(this.totalItemsAddedManually)).append("/20 \r\n");
+            out.append(" - Total compréhension de mots avec items sélectionnés manuellement : ").append(String.valueOf(this.total)).append("/20 \r\n");
             out.close();
         } catch (Exception e) {
-            log.info("Error creation csv for Bera stats game !");
+            log.info("Error creation csv for BeraV2 stats game !");
             e.printStackTrace();
         }
     }
@@ -648,11 +648,11 @@ public class Bera implements GameLifeCycle {
         this.total = this.totalMorphosyntax + this.totalItemsAddedManually;
 
         File pathDirectory = stats.getGameStatsOfTheDayDirectory();
-        String pathFile = "statsBeraComprehensionPhrases-" + DateUtils.dateTimeNow() + ".csv";
+        String pathFile = "statsBeraV2ComprehensionPhrases-" + DateUtils.dateTimeNow() + ".csv";
         File statsFile = new File(pathDirectory, pathFile);
 
         Date now = new Date();
-        SimpleDateFormat formatDate = new SimpleDateFormat("dd MMMM yyyy 'Ã ' HH:mm:ss");
+        SimpleDateFormat formatDate = new SimpleDateFormat("dd MMMM yyyy 'à' HH:mm:ss");
 
         try {
             PrintWriter out = new PrintWriter(statsFile, StandardCharsets.UTF_16);
@@ -664,11 +664,11 @@ public class Bera implements GameLifeCycle {
             out.append(" - Score items complexes : ").append(String.valueOf(this.complexScoreItemsMorphosyntax)).append("/5 \r\n");
             out.append(" - Score items cibles gauche : ").append(String.valueOf(this.scoreLeftTargetItemsMorphosyntax)).append("/5 \r\n");
             out.append(" - Score items cibles droite : ").append(String.valueOf(this.scoreRightTargetItemsMorphosyntax)).append("/5 \r\n");
-            out.append(" - Total items ajoutÃ©s manuellement : ").append(String.valueOf(this.totalItemsAddedManually)).append("/10 \r\n");
-            out.append(" - Total comprÃ©hension de phrases : ").append(String.valueOf(this.total)).append("/10 \r\n");
+            out.append(" - Total items ajoutés manuellement : ").append(String.valueOf(this.totalItemsAddedManually)).append("/10 \r\n");
+            out.append(" - Total compréhension de phrases : ").append(String.valueOf(this.total)).append("/10 \r\n");
             out.close();
         } catch (Exception e) {
-            log.info("Error creation csv for Bera stats game !");
+            log.info("Error creation csv for BeraV2 stats game !");
             e.printStackTrace();
         }
     }

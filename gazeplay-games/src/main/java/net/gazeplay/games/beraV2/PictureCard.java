@@ -1,4 +1,4 @@
-package net.gazeplay.games.bera;
+package net.gazeplay.games.beraV2;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -44,7 +44,7 @@ class PictureCard extends Group {
     private final Stats stats;
     private final String imagePath;
     private final PictureCard.CustomInputEventHandlerMouse customInputEventHandlerMouse;
-    private final Bera gameInstance;
+    private final BeraV2 gameInstance;
     private ProgressIndicator progressIndicator;
     private Timeline progressIndicatorAnimationTimeLine;
     private boolean selected;
@@ -53,7 +53,7 @@ class PictureCard extends Group {
     private int valueProgressIndicator = 200;
 
     PictureCard(double posX, double posY, double width, double height, @NonNull IGameContext gameContext,
-                boolean winner, @NonNull String imagePath, @NonNull Stats stats, Bera gameInstance) {
+                boolean winner, @NonNull String imagePath, @NonNull Stats stats, BeraV2 gameInstance) {
 
         log.info("imagePath = {}", imagePath);
 
@@ -92,7 +92,7 @@ class PictureCard extends Group {
 
     }
 
-    private Timeline createProgressIndicatorTimeLine(Bera gameInstance) {
+    private Timeline createProgressIndicatorTimeLine(BeraV2 gameInstance) {
         Timeline result = new Timeline();
 
         result.getKeyFrames()
@@ -106,7 +106,7 @@ class PictureCard extends Group {
         return result;
     }
 
-    private EventHandler<ActionEvent> createProgressIndicatorAnimationTimeLineOnFinished(Bera gameInstance) {
+    private EventHandler<ActionEvent> createProgressIndicatorAnimationTimeLineOnFinished(BeraV2 gameInstance) {
         return actionEvent -> {
 
             log.debug("FINISHED");
