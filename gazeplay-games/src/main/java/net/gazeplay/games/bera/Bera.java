@@ -40,9 +40,11 @@ public class Bera implements GameLifeCycle {
     private final boolean fourThree;
     private final IGameContext gameContext;
     private final Stats stats;
+    private final BeraGameVariant gameVariant;
     private final ReplayablePseudoRandom randomGenerator;
     private final ArrayList<TargetAOI> targetAOIList;
     public int indexFileImage = 0;
+    public int indexEndGame = 20;
     public CustomInputEventHandlerKeyboard customInputEventHandlerKeyboard = new CustomInputEventHandlerKeyboard();
     private Text questionText;
     //Phonology
@@ -66,10 +68,11 @@ public class Bera implements GameLifeCycle {
     private RoundDetails currentRoundDetails;
     private boolean canRemoveItemManually = true;
 
-    public Bera(final boolean fourThree, final IGameContext gameContext, final Stats stats) {
+    public Bera(final boolean fourThree, final IGameContext gameContext, final Stats stats, final BeraGameVariant gameVariant) {
         this.gameContext = gameContext;
         this.fourThree = fourThree;
         this.stats = stats;
+        this.gameVariant = gameVariant;
         this.targetAOIList = new ArrayList<>();
         this.gameContext.startScoreLimiter();
         this.gameContext.startTimeLimiter();
@@ -79,10 +82,11 @@ public class Bera implements GameLifeCycle {
         this.gameContext.getPrimaryScene().addEventFilter(KeyEvent.KEY_PRESSED, customInputEventHandlerKeyboard);
     }
 
-    public Bera(final boolean fourThree, final IGameContext gameContext, final Stats stats, double gameSeed) {
+    public Bera(final boolean fourThree, final IGameContext gameContext, final Stats stats, final BeraGameVariant gameVariant, double gameSeed) {
         this.gameContext = gameContext;
         this.fourThree = fourThree;
         this.stats = stats;
+        this.gameVariant = gameVariant;
         this.targetAOIList = new ArrayList<>();
         this.gameContext.startScoreLimiter();
         this.gameContext.startTimeLimiter();
@@ -233,7 +237,16 @@ public class Bera implements GameLifeCycle {
         List<String> resourcesFolders = new LinkedList<>();
 
         final String resourcesDirectory = this.directoryRessource;
-        final String imagesDirectory = resourcesDirectory + "/wordsVersion1/";
+        String imagesDirectory = "";
+
+        if (gameVariant == BeraGameVariant.WORD_COMPREHENSION){
+            imagesDirectory = resourcesDirectory + "/wordComprehension/";
+            this.indexEndGame = 20;
+        }else {
+            imagesDirectory = resourcesDirectory + "/sentenceComprehension/";
+            this.indexEndGame = 10;
+        }
+
         directoryName = imagesDirectory;
 
         // Here we filter out any unwanted resource folders, based on the difficulty JSON file
@@ -546,7 +559,7 @@ public class Bera implements GameLifeCycle {
             out.append(" - Score items cibles droite : ").append(String.valueOf(this.scoreRightTargetItemsPhonology)).append("/5 \r\n");
             out.append("\r\n");
             out.append("SEMANTIQUE \r\n");
-            out.append(" - Total Semantic : ").append(String.valueOf(this.totalSemantic)).append("/10 \r\n");
+            out.append(" - Total Sémantique : ").append(String.valueOf(this.totalSemantic)).append("/10 \r\n");
             out.append(" - Score items simples : ").append(String.valueOf(this.simpleScoreItemsSemantic)).append("/5 \r\n");
             out.append(" - Score items complexes : ").append(String.valueOf(this.complexScoreItemsSemantic)).append("/5 \r\n");
             out.append(" - Score items fréquents (F+) : ").append(String.valueOf(this.frequentScoreItemSemantic)).append("/5 \r\n");

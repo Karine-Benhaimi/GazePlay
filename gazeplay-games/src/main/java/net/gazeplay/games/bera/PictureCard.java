@@ -94,7 +94,7 @@ class PictureCard extends Group {
         Timeline result = new Timeline();
 
         result.getKeyFrames()
-            .add(new KeyFrame(new Duration(2000), new KeyValue(progressIndicator.progressProperty(), 1)));
+            .add(new KeyFrame(new Duration(200), new KeyValue(progressIndicator.progressProperty(), 1)));
 
         EventHandler<ActionEvent> progressIndicatorAnimationTimeLineOnFinished = createProgressIndicatorAnimationTimeLineOnFinished(
             gameInstance);
@@ -141,7 +141,7 @@ class PictureCard extends Group {
 
     public void onCorrectCardSelected() {
 
-        if (gameInstance.indexFileImage == 19) {
+        if (gameInstance.indexFileImage == (gameInstance.indexEndGame - 1)) {
             gameInstance.increaseIndexFileImage(true);
             this.endGame();
         } else {
@@ -163,7 +163,7 @@ class PictureCard extends Group {
 
     public void onWrongCardSelected() {
 
-        if (gameInstance.indexFileImage == 19) {
+        if (gameInstance.indexFileImage == (gameInstance.indexEndGame - 1)) {
             this.endGame();
         } else {
             gameInstance.increaseIndexFileImage(false);
