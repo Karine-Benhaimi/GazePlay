@@ -374,22 +374,22 @@ public class BeraV2 implements GameLifeCycle {
             switch (index) {
 
                 case 0:
-                    this.totalPhonology += 1;
-                    this.complexScoreItemsPhonology += 1;
-                    this.scoreLeftTargetItemsPhonology += 1;
+                    this.totalSemantic += 1;
+                    this.simpleScoreItemsSemantic += 1;
+                    this.infrequentScoreItemSemantic += 1;
+                    this.scoreLeftTargetItemsSemantic += 1;
                     break;
 
                 case 1:
                     this.totalPhonology += 1;
-                    this.complexScoreItemsPhonology += 1;
-                    this.scoreRightTargetItemsPhonology += 1;
+                    this.simpleScoreItemsPhonology += 1;
+                    this.scoreLeftTargetItemsPhonology += 1;
                     break;
 
                 case 2:
-                    this.totalSemantic += 1;
-                    this.simpleScoreItemsSemantic += 1;
-                    this.frequentScoreItemSemantic += 1;
-                    this.scoreLeftTargetItemsSemantic += 1;
+                    this.totalPhonology += 1;
+                    this.complexScoreItemsPhonology += 1;
+                    this.scoreRightTargetItemsPhonology += 1;
                     break;
 
                 case 3:
@@ -401,60 +401,60 @@ public class BeraV2 implements GameLifeCycle {
                 case 4:
                     this.totalSemantic += 1;
                     this.complexScoreItemsSemantic += 1;
-                    this.frequentScoreItemSemantic += 1;
+                    this.infrequentScoreItemSemantic += 1;
                     this.scoreRightTargetItemsSemantic += 1;
                     break;
 
                 case 5:
-                    this.totalSemantic += 1;
-                    this.simpleScoreItemsSemantic += 1;
-                    this.frequentScoreItemSemantic += 1;
-                    this.scoreLeftTargetItemsSemantic += 1;
+                    this.totalPhonology += 1;
+                    this.simpleScoreItemsPhonology += 1;
+                    this.scoreRightTargetItemsPhonology += 1;
                     break;
 
                 case 6:
                     this.totalSemantic += 1;
-                    this.simpleScoreItemsSemantic += 1;
+                    this.complexScoreItemsSemantic += 1;
                     this.infrequentScoreItemSemantic += 1;
-                    this.scoreLeftTargetItemsSemantic += 1;
+                    this.scoreRightTargetItemsSemantic += 1;
                     break;
 
                 case 7:
-                    this.totalPhonology += 1;
-                    this.complexScoreItemsPhonology += 1;
-                    this.scoreRightTargetItemsPhonology += 1;
+                    this.totalSemantic += 1;
+                    this.simpleScoreItemsSemantic += 1;
+                    this.frequentScoreItemSemantic += 1;
+                    this.scoreRightTargetItemsSemantic += 1;
                     break;
 
                 case 8:
                     this.totalSemantic += 1;
                     this.complexScoreItemsSemantic += 1;
-                    this.frequentScoreItemSemantic += 1;
-                    this.scoreLeftTargetItemsSemantic += 1;
-                    break;
-
-                case 9:
-                    this.totalSemantic += 1;
-                    this.simpleScoreItemsSemantic += 1;
-                    this.frequentScoreItemSemantic += 1;
-                    this.scoreRightTargetItemsSemantic += 1;
-                    break;
-
-                case 10:
-                    this.totalSemantic += 1;
-                    this.complexScoreItemsSemantic += 1;
                     this.infrequentScoreItemSemantic += 1;
                     this.scoreRightTargetItemsSemantic += 1;
                     break;
 
-                case 11:
+                case 9:
                     this.totalPhonology += 1;
                     this.complexScoreItemsPhonology += 1;
-                    this.scoreRightTargetItemsPhonology += 1;
+                    this.scoreLeftTargetItemsPhonology += 1;
+                    break;
+
+                case 10:
+                    this.totalSemantic += 1;
+                    this.simpleScoreItemsSemantic += 1;
+                    this.frequentScoreItemSemantic += 1;
+                    this.scoreLeftTargetItemsSemantic += 1;
+                    break;
+
+                case 11:
+                    this.totalSemantic += 1;
+                    this.complexScoreItemsSemantic += 1;
+                    this.frequentScoreItemSemantic += 1;
+                    this.scoreRightTargetItemsSemantic += 1;
                     break;
 
                 case 12:
                     this.totalPhonology += 1;
-                    this.complexScoreItemsPhonology += 1;
+                    this.simpleScoreItemsPhonology += 1;
                     this.scoreLeftTargetItemsPhonology += 1;
                     break;
 
@@ -465,42 +465,42 @@ public class BeraV2 implements GameLifeCycle {
                     break;
 
                 case 14:
-                    this.totalSemantic += 1;
-                    this.complexScoreItemsSemantic += 1;
-                    this.infrequentScoreItemSemantic += 1;
-                    this.scoreRightTargetItemsSemantic += 1;
-                    break;
-
-                case 15:
                     this.totalPhonology += 1;
-                    this.simpleScoreItemsPhonology += 1;
+                    this.complexScoreItemsPhonology += 1;
                     this.scoreRightTargetItemsPhonology += 1;
                     break;
 
-                case 16:
-                    this.totalPhonology += 1;
-                    this.simpleScoreItemsPhonology += 1;
-                    this.scoreLeftTargetItemsPhonology += 1;
-                    break;
-
-                case 17:
+                case 15:
                     this.totalSemantic += 1;
                     this.simpleScoreItemsSemantic += 1;
                     this.infrequentScoreItemSemantic += 1;
                     this.scoreLeftTargetItemsSemantic += 1;
                     break;
 
-                case 18:
+                case 16:
+                    this.totalPhonology += 1;
+                    this.complexScoreItemsPhonology += 1;
+                    this.scoreRightTargetItemsPhonology += 1;
+                    break;
+
+                case 17:
                     this.totalSemantic += 1;
                     this.complexScoreItemsSemantic += 1;
-                    this.infrequentScoreItemSemantic += 1;
-                    this.scoreRightTargetItemsSemantic += 1;
+                    this.frequentScoreItemSemantic += 1;
+                    this.scoreLeftTargetItemsSemantic += 1;
+                    break;
+
+                case 18:
+                    this.totalPhonology += 1;
+                    this.complexScoreItemsPhonology += 1;
+                    this.scoreLeftTargetItemsPhonology += 1;
                     break;
 
                 case 19:
-                    this.totalPhonology += 1;
-                    this.simpleScoreItemsPhonology += 1;
-                    this.scoreLeftTargetItemsPhonology += 1;
+                    this.totalSemantic += 1;
+                    this.simpleScoreItemsSemantic += 1;
+                    this.frequentScoreItemSemantic += 1;
+                    this.scoreLeftTargetItemsSemantic += 1;
                     break;
 
                 default:
@@ -611,10 +611,11 @@ public class BeraV2 implements GameLifeCycle {
         File statsFile = new File(pathDirectory, pathFile);
 
         Date now = new Date();
-        SimpleDateFormat formatDate = new SimpleDateFormat("dd MMMM yyyy 'à' HH:mm:ss");
+        SimpleDateFormat formatDate = new SimpleDateFormat("dd MMMM yyyy 'Ã ' HH:mm:ss");
 
         try {
             PrintWriter out = new PrintWriter(statsFile, StandardCharsets.UTF_16);
+            out.append("\r\n");
             out.append("Fait le ").append(formatDate.format(now)).append("\r\n");
             out.append("\r\n");
             out.append("PHONOLOGIE \r\n");
@@ -625,18 +626,18 @@ public class BeraV2 implements GameLifeCycle {
             out.append(" - Score items cibles droite : ").append(String.valueOf(this.scoreRightTargetItemsPhonology)).append("/5 \r\n");
             out.append("\r\n");
             out.append("SEMANTIQUE \r\n");
-            out.append(" - Total Sémantique : ").append(String.valueOf(this.totalSemantic)).append("/10 \r\n");
+            out.append(" - Total SÃ©mantique : ").append(String.valueOf(this.totalSemantic)).append("/10 \r\n");
             out.append(" - Score items simples : ").append(String.valueOf(this.simpleScoreItemsSemantic)).append("/5 \r\n");
             out.append(" - Score items complexes : ").append(String.valueOf(this.complexScoreItemsSemantic)).append("/5 \r\n");
-            out.append(" - Score items fréquents (F+) : ").append(String.valueOf(this.frequentScoreItemSemantic)).append("/5 \r\n");
-            out.append(" - Score items peu fréquents (F-) : ").append(String.valueOf(this.infrequentScoreItemSemantic)).append("/5 \r\n");
+            out.append(" - Score items frÃ©quents (F+) : ").append(String.valueOf(this.frequentScoreItemSemantic)).append("/5 \r\n");
+            out.append(" - Score items peu frÃ©quents (F-) : ").append(String.valueOf(this.infrequentScoreItemSemantic)).append("/5 \r\n");
             out.append(" - Score items cibles gauche : ").append(String.valueOf(this.scoreLeftTargetItemsSemantic)).append("/5 \r\n");
             out.append(" - Score items cibles droite : ").append(String.valueOf(this.scoreRightTargetItemsSemantic)).append("/5 \r\n");
             out.append("\r\n");
             out.append("COMPREHENSION DE MOTS \r\n");
-            out.append(" - Total compréhension de mots : ").append(String.valueOf(this.totalWordComprehension)).append("/20 \r\n");
-            out.append(" - Total items ajoutés manuellement : ").append(String.valueOf(this.totalItemsAddedManually)).append("/20 \r\n");
-            out.append(" - Total compréhension de mots avec items sélectionnés manuellement : ").append(String.valueOf(this.total)).append("/20 \r\n");
+            out.append(" - Total comprÃ©hension de mots : ").append(String.valueOf(this.totalWordComprehension)).append("/20 \r\n");
+            out.append(" - Total items ajoutÃ©s manuellement : ").append(String.valueOf(this.totalItemsAddedManually)).append("/20 \r\n");
+            out.append(" - Total comprÃ©hension de mots avec items sÃ©lectionnÃ©s manuellement : ").append(String.valueOf(this.total)).append("/20 \r\n");
             out.close();
         } catch (Exception e) {
             log.info("Error creation csv for BeraV2 stats game !");
@@ -652,10 +653,11 @@ public class BeraV2 implements GameLifeCycle {
         File statsFile = new File(pathDirectory, pathFile);
 
         Date now = new Date();
-        SimpleDateFormat formatDate = new SimpleDateFormat("dd MMMM yyyy 'à' HH:mm:ss");
+        SimpleDateFormat formatDate = new SimpleDateFormat("dd MMMM yyyy 'Ã ' HH:mm:ss");
 
         try {
             PrintWriter out = new PrintWriter(statsFile, StandardCharsets.UTF_16);
+            out.append("\r\n");
             out.append("Fait le ").append(formatDate.format(now)).append("\r\n");
             out.append("\r\n");
             out.append("MORPHOSYNTAXE \r\n");
@@ -664,8 +666,8 @@ public class BeraV2 implements GameLifeCycle {
             out.append(" - Score items complexes : ").append(String.valueOf(this.complexScoreItemsMorphosyntax)).append("/5 \r\n");
             out.append(" - Score items cibles gauche : ").append(String.valueOf(this.scoreLeftTargetItemsMorphosyntax)).append("/5 \r\n");
             out.append(" - Score items cibles droite : ").append(String.valueOf(this.scoreRightTargetItemsMorphosyntax)).append("/5 \r\n");
-            out.append(" - Total items ajoutés manuellement : ").append(String.valueOf(this.totalItemsAddedManually)).append("/10 \r\n");
-            out.append(" - Total compréhension de phrases : ").append(String.valueOf(this.total)).append("/10 \r\n");
+            out.append(" - Total items ajoutÃ©s manuellement : ").append(String.valueOf(this.totalItemsAddedManually)).append("/10 \r\n");
+            out.append(" - Total comprÃ©hension de phrases : ").append(String.valueOf(this.total)).append("/10 \r\n");
             out.close();
         } catch (Exception e) {
             log.info("Error creation csv for BeraV2 stats game !");

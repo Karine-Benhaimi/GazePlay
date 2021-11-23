@@ -615,6 +615,7 @@ public class Bera implements GameLifeCycle {
 
         try {
             PrintWriter out = new PrintWriter(statsFile, StandardCharsets.UTF_16);
+            out.append("\r\n");
             out.append("Fait le ").append(formatDate.format(now)).append("\r\n");
             out.append("\r\n");
             out.append("PHONOLOGIE \r\n");
@@ -656,6 +657,7 @@ public class Bera implements GameLifeCycle {
 
         try {
             PrintWriter out = new PrintWriter(statsFile, StandardCharsets.UTF_16);
+            out.append("\r\n");
             out.append("Fait le ").append(formatDate.format(now)).append("\r\n");
             out.append("\r\n");
             out.append("MORPHOSYNTAXE \r\n");
