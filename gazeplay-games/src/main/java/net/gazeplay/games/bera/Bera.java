@@ -185,6 +185,7 @@ public class Bera implements GameLifeCycle {
         gameContext.onGameStarted(2000);
 
         customInputEventHandlerKeyboard.ignoreAnyInput = false;
+
     }
 
     public void checkAllPictureCardChecked() {
@@ -593,8 +594,39 @@ public class Bera implements GameLifeCycle {
 
     public void finalStats() {
         if (gameVariant == BeraGameVariant.WORD_COMPREHENSION){
+
+            stats.variantType = "WordComprehension";
+
+            //Phonology
+            stats.totalPhonology = this.totalPhonology;
+            stats.simpleScoreItemsPhonology = this.simpleScoreItemsPhonology;
+            stats.complexScoreItemsPhonology = this.complexScoreItemsPhonology;
+            stats.scoreLeftTargetItemsPhonology = this.scoreLeftTargetItemsPhonology;
+            stats.scoreRightTargetItemsPhonology = this.scoreRightTargetItemsPhonology;
+
+            //Semantic
+            stats.totalSemantic = this.totalSemantic;
+            stats.simpleScoreItemsSemantic = this.simpleScoreItemsSemantic;
+            stats.complexScoreItemsSemantic = this.complexScoreItemsSemantic;
+            stats.frequentScoreItemSemantic = this.frequentScoreItemSemantic;
+            stats.infrequentScoreItemSemantic = this.infrequentScoreItemSemantic;
+            stats.scoreLeftTargetItemsSemantic = this.scoreLeftTargetItemsSemantic;
+            stats.scoreRightTargetItemsSemantic = this.scoreRightTargetItemsSemantic;
+
+            //World Comprehension
+            stats.totalWordComprehension = this.scoreLeftTargetItemsPhonology +
+                this.scoreRightTargetItemsPhonology +
+                this.scoreLeftTargetItemsSemantic +
+                this.scoreRightTargetItemsSemantic;
+            stats.totalItemsAddedManually = this.totalItemsAddedManually;
+            stats.total = this.totalWordComprehension + this.totalItemsAddedManually;
+
             createFileWordComprehension();
         }else if (gameVariant == BeraGameVariant.SENTENCE_COMPREHENSION){
+
+            stats.variantType = "SentenceComprehension";
+
+
             createFileSentenceComprehension();
         }
     }

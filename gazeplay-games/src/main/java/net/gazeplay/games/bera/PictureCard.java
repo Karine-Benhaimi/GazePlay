@@ -145,6 +145,7 @@ class PictureCard extends Group {
     public void onCorrectCardSelected() {
 
         if (gameInstance.indexFileImage == (gameInstance.indexEndGame - 1)) {
+            progressIndicator.setVisible(false);
             gameInstance.increaseIndexFileImage(true);
             this.endGame();
         } else {
@@ -167,6 +168,7 @@ class PictureCard extends Group {
     public void onWrongCardSelected() {
 
         if (gameInstance.indexFileImage == (gameInstance.indexEndGame - 1)) {
+            progressIndicator.setVisible(false);
             this.endGame();
         } else {
             gameInstance.increaseIndexFileImage(false);

@@ -62,9 +62,9 @@ public class StatsContext extends GraphicalContext<BorderPane> {
 
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.TOP_CENTER);
-        grid.setHgap(100);
-        grid.setVgap(50);
-        grid.setPadding(new Insets(0, 50, 0, 50));
+        grid.setHgap(50);
+        grid.setVgap(25);
+        //grid.setPadding(new Insets(0, 50, 0, 50));
 
         addAllToGrid(stats, translator, grid, alignLeft);
 
@@ -243,62 +243,36 @@ public class StatsContext extends GraphicalContext<BorderPane> {
     }
 
     void addAllToGrid(Stats stats, Translator translator, GridPane grid, boolean alignLeft) {
-        AtomicInteger currentFormRow = new AtomicInteger(1);
+        AtomicInteger currentFormRow = new AtomicInteger(0);
 
         Text value;
         String labelValue;
 
-        value = new Text(StatDisplayUtils.convert(stats.computeTotalElapsedDuration()));
-        addToGrid(grid, currentFormRow, translator, "TotalLength", value, alignLeft);
+        if (stats.variantType.equals("WordComprehension")){
 
-        if (!(stats instanceof ExplorationGamesStats)) {
+            addToGrid(grid, currentFormRow, translator, "PHONOLOGY", new Text(""), alignLeft);
+            addToGrid(grid, currentFormRow, translator, "TotalPhonology", new Text(String.valueOf(stats.totalPhonology) + "/10"), alignLeft);
+            addToGrid(grid, currentFormRow, translator, "SimpleScoreItems", new Text(String.valueOf(stats.simpleScoreItemsPhonology) + "/5"), alignLeft);
+            addToGrid(grid, currentFormRow, translator, "ComplexScoreItems", new Text(String.valueOf(stats.complexScoreItemsPhonology) + "/5"), alignLeft);
+            addToGrid(grid, currentFormRow, translator, "ScoreLeftTargetItems", new Text(String.valueOf(stats.scoreLeftTargetItemsPhonology) + "/5"), alignLeft);
+            addToGrid(grid, currentFormRow, translator, "ScoreRightTargetItems", new Text(String.valueOf(stats.scoreLeftTargetItemsPhonology) + "/5"), alignLeft);
 
-            if (stats instanceof ShootGamesStats) {
-                labelValue = "Shots";
-            } else if (stats instanceof HiddenItemsGamesStats) {
-                labelValue = "HiddenItemsShot";
-            } else {
-                labelValue = "Score";
-            }
+            addToGrid(grid, currentFormRow, translator, "SEMANTIC", new Text(""), alignLeft);
+            addToGrid(grid, currentFormRow, translator, "TotalSemantic", new Text(String.valueOf(stats.totalSemantic) + "/10"), alignLeft);
+            addToGrid(grid, currentFormRow, translator, "SimpleScoreItems", new Text(String.valueOf(stats.simpleScoreItemsPhonology) + "/5"), alignLeft);
+            addToGrid(grid, currentFormRow, translator, "ComplexScoreItems", new Text(String.valueOf(stats.complexScoreItemsPhonology) + "/5"), alignLeft);
+            addToGrid(grid, currentFormRow, translator, "FrequentScoreItem", new Text(String.valueOf(stats.frequentScoreItemSemantic) + "/5"), alignLeft);
+            addToGrid(grid, currentFormRow, translator, "InfrequentScoreItem", new Text(String.valueOf(stats.infrequentScoreItemSemantic) + "/5"), alignLeft);
+            addToGrid(grid, currentFormRow, translator, "ScoreLeftTargetItems", new Text(String.valueOf(stats.scoreLeftTargetItemsSemantic) + "/5"), alignLeft);
+            addToGrid(grid, currentFormRow, translator, "ScoreRightTargetItems", new Text(String.valueOf(stats.scoreRightTargetItemsSemantic) + "/5"), alignLeft);
 
-            value = new Text(String.valueOf(stats.getNbGoalsReached()));
-            addToGrid(grid, currentFormRow, translator, labelValue, value, alignLeft);
-        }
+            addToGrid(grid, currentFormRow, translator, "WORDCOMPREHENSION", new Text(""), alignLeft);
+            addToGrid(grid, currentFormRow, translator, "TotalWordComprehension", new Text(String.valueOf(stats.totalWordComprehension) + "/20"), alignLeft);
+            addToGrid(grid, currentFormRow, translator, "TotalItemsAddManually", new Text(String.valueOf(stats.totalItemsAddedManually) + "/20"), alignLeft);
+            addToGrid(grid, currentFormRow, translator, "Total", new Text(String.valueOf(stats.total) + "/20"), alignLeft);
 
-        if (stats instanceof ShootGamesStats) {
-            labelValue = "HitRate";
-            value = new Text(stats.getShotRatio() + "% (" + stats.getNbGoalsReached() + "/" + stats.getNbGoalsToReach() + ")");
-            addToGrid(grid, currentFormRow, translator, labelValue, value, alignLeft);
-        }
+        }else if (stats.variantType.equals("SentenceComprehension")){
 
-        if (!(stats instanceof ExplorationGamesStats)) {
-            labelValue = "Length";
-            value = new Text(StatDisplayUtils.convert(stats.getRoundsTotalAdditiveDuration()));
-            addToGrid(grid, currentFormRow, translator, labelValue, value, alignLeft);
-        }
-
-        if (!(stats instanceof ExplorationGamesStats)) {
-            labelValue = stats instanceof ShootGamesStats ? "ShotaverageLength" : "AverageLength";
-            value = new Text(StatDisplayUtils.convert(stats.computeRoundsDurationAverageDuration()));
-            addToGrid(grid, currentFormRow, translator, labelValue, value, alignLeft);
-        }
-
-        if (!(stats instanceof ExplorationGamesStats)) {
-            labelValue = stats instanceof ShootGamesStats ? "ShotmedianLength" : "MedianLength";
-            value = new Text(StatDisplayUtils.convert(stats.computeRoundsDurationMedianDuration()));
-            addToGrid(grid, currentFormRow, translator, labelValue, value, alignLeft);
-        }
-
-        if (!(stats instanceof ExplorationGamesStats)) {
-            labelValue = "StandDev";
-            value = new Text(StatDisplayUtils.convert((long) stats.computeRoundsDurationStandardDeviation()));
-            addToGrid(grid, currentFormRow, translator, labelValue, value, alignLeft);
-        }
-
-        if (stats instanceof ShootGamesStats && stats.getNbUnCountedGoalsReached() != 0) {
-            labelValue = "UncountedShot";
-            value = new Text(String.valueOf(stats.getNbUnCountedGoalsReached()));
-            addToGrid(grid, currentFormRow, translator, labelValue, value, alignLeft);
         }
     }
 
@@ -312,8 +286,6 @@ public class StatsContext extends GraphicalContext<BorderPane> {
     ) {
         final int columnIndexLabelLeft = 0;
         final int columnIndexInputLeft = 1;
-        final int columnIndexLabelRight = 1;
-        final int columnIndexInputRight = 0;
 
         final int currentRowIndex = currentFormRow.incrementAndGet();
 
@@ -328,12 +300,6 @@ public class StatsContext extends GraphicalContext<BorderPane> {
 
             GridPane.setHalignment(label, HPos.LEFT);
             GridPane.setHalignment(value, HPos.LEFT);
-        } else {
-            grid.add(value, columnIndexInputRight, currentRowIndex);
-            grid.add(label, columnIndexLabelRight, currentRowIndex);
-
-            GridPane.setHalignment(label, HPos.RIGHT);
-            GridPane.setHalignment(value, HPos.RIGHT);
         }
     }
 
