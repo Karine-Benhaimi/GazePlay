@@ -21,6 +21,7 @@ import net.gazeplay.commons.utils.multilinguism.Multilinguism;
 import net.gazeplay.commons.utils.multilinguism.MultilinguismFactory;
 import net.gazeplay.commons.utils.stats.Stats;
 import net.gazeplay.commons.utils.stats.TargetAOI;
+import net.gazeplay.games.bera.BeraGameVariant;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -593,8 +594,49 @@ public class BeraV2 implements GameLifeCycle {
 
     public void finalStats() {
         if (gameVariant == BeraV2GameVariant.WORD_COMPREHENSION_V2){
+
+            stats.variantType = "WordComprehension";
+
+            //Phonology
+            stats.totalPhonology = this.totalPhonology;
+            stats.simpleScoreItemsPhonology = this.simpleScoreItemsPhonology;
+            stats.complexScoreItemsPhonology = this.complexScoreItemsPhonology;
+            stats.scoreLeftTargetItemsPhonology = this.scoreLeftTargetItemsPhonology;
+            stats.scoreRightTargetItemsPhonology = this.scoreRightTargetItemsPhonology;
+
+            //Semantic
+            stats.totalSemantic = this.totalSemantic;
+            stats.simpleScoreItemsSemantic = this.simpleScoreItemsSemantic;
+            stats.complexScoreItemsSemantic = this.complexScoreItemsSemantic;
+            stats.frequentScoreItemSemantic = this.frequentScoreItemSemantic;
+            stats.infrequentScoreItemSemantic = this.infrequentScoreItemSemantic;
+            stats.scoreLeftTargetItemsSemantic = this.scoreLeftTargetItemsSemantic;
+            stats.scoreRightTargetItemsSemantic = this.scoreRightTargetItemsSemantic;
+
+            //World Comprehension
+            stats.totalWordComprehension = this.scoreLeftTargetItemsPhonology +
+                this.scoreRightTargetItemsPhonology +
+                this.scoreLeftTargetItemsSemantic +
+                this.scoreRightTargetItemsSemantic;
+            stats.totalItemsAddedManually = this.totalItemsAddedManually;
+            stats.total = this.totalWordComprehension + this.totalItemsAddedManually;
+
             createFileWordComprehension();
         }else if (gameVariant == BeraV2GameVariant.SENTENCE_COMPREHENSION_V2){
+
+            stats.variantType = "SentenceComprehension";
+
+            //Morphosyntax
+            stats.totalMorphosyntax = this.totalMorphosyntax;
+            stats.simpleScoreItemsMorphosyntax = this.simpleScoreItemsMorphosyntax;
+            stats.complexScoreItemsMorphosyntax = this.complexScoreItemsMorphosyntax;
+            stats.scoreLeftTargetItemsMorphosyntax = this.scoreLeftTargetItemsMorphosyntax;
+            stats.scoreRightTargetItemsMorphosyntax = this.scoreRightTargetItemsMorphosyntax;
+
+            //Sentence Comprehension
+            stats.totalItemsAddedManually = this.totalItemsAddedManually;
+            stats.total = this.totalMorphosyntax + this.totalItemsAddedManually;
+
             createFileSentenceComprehension();
         }
     }

@@ -273,6 +273,16 @@ public class StatsContext extends GraphicalContext<BorderPane> {
 
         }else if (stats.variantType.equals("SentenceComprehension")){
 
+            addToGrid(grid, currentFormRow, translator, "MORPHOSYNTAX", new Text(""), alignLeft);
+            addToGrid(grid, currentFormRow, translator, "TotalMorphosyntax", new Text(String.valueOf(stats.totalMorphosyntax) + "/10"), alignLeft);
+            addToGrid(grid, currentFormRow, translator, "SimpleScoreItems", new Text(String.valueOf(stats.simpleScoreItemsMorphosyntax) + "/5"), alignLeft);
+            addToGrid(grid, currentFormRow, translator, "ComplexScoreItems", new Text(String.valueOf(stats.complexScoreItemsMorphosyntax) + "/5"), alignLeft);
+            addToGrid(grid, currentFormRow, translator, "ScoreLeftTargetItems", new Text(String.valueOf(stats.scoreLeftTargetItemsMorphosyntax) + "/5"), alignLeft);
+            addToGrid(grid, currentFormRow, translator, "ScoreRightTargetItems", new Text(String.valueOf(stats.scoreLeftTargetItemsMorphosyntax) + "/5"), alignLeft);
+
+            addToGrid(grid, currentFormRow, translator, "SENTENCECOMPREHENSION", new Text(""), alignLeft);
+            addToGrid(grid, currentFormRow, translator, "TotalItemsAddManually", new Text(String.valueOf(stats.totalItemsAddedManually) + "/10"), alignLeft);
+            addToGrid(grid, currentFormRow, translator, "TotalSentenceComprehension", new Text(String.valueOf(stats.total) + "/10"), alignLeft);
         }
     }
 

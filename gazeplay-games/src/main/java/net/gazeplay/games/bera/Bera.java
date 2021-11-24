@@ -626,6 +626,16 @@ public class Bera implements GameLifeCycle {
 
             stats.variantType = "SentenceComprehension";
 
+            //Morphosyntax
+            stats.totalMorphosyntax = this.totalMorphosyntax;
+            stats.simpleScoreItemsMorphosyntax = this.simpleScoreItemsMorphosyntax;
+            stats.complexScoreItemsMorphosyntax = this.complexScoreItemsMorphosyntax;
+            stats.scoreLeftTargetItemsMorphosyntax = this.scoreLeftTargetItemsMorphosyntax;
+            stats.scoreRightTargetItemsMorphosyntax = this.scoreRightTargetItemsMorphosyntax;
+
+            //Sentence Comprehension
+            stats.totalItemsAddedManually = this.totalItemsAddedManually;
+            stats.total = this.totalMorphosyntax + this.totalItemsAddedManually;
 
             createFileSentenceComprehension();
         }
