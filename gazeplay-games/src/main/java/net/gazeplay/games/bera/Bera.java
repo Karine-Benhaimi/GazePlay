@@ -78,8 +78,12 @@ public class Bera implements GameLifeCycle {
 
     public int indexFileImage = 0;
     public int indexEndGame = 20;
+    public int nbCountError = 0;
+    public int nbCountErrorSave = 0;
+
     public CustomInputEventHandlerKeyboard customInputEventHandlerKeyboard = new CustomInputEventHandlerKeyboard();
     private boolean canRemoveItemManually = true;
+    public boolean reEntered = false;
 
     public Bera(final boolean fourThree, final IGameContext gameContext, final Stats stats, final BeraGameVariant gameVariant) {
         this.gameContext = gameContext;
@@ -185,7 +189,6 @@ public class Bera implements GameLifeCycle {
         gameContext.onGameStarted(2000);
 
         customInputEventHandlerKeyboard.ignoreAnyInput = false;
-
     }
 
     public void checkAllPictureCardChecked() {
@@ -198,6 +201,7 @@ public class Bera implements GameLifeCycle {
         if (check) {
             for (final net.gazeplay.games.bera.PictureCard p : currentRoundDetails.getPictureCardList()) {
                 p.setVisibleProgressIndicator();
+                this.reEntered = true;
             }
         }
     }
@@ -314,8 +318,8 @@ public class Bera implements GameLifeCycle {
         }
 
         final net.gazeplay.games.bera.PictureCard pictureCard1 = new net.gazeplay.games.bera.PictureCard(
-            gameSizing.width * posX + gameSizing.shift,
-            gameSizing.height * posY, gameSizing.width, gameSizing.height, gameContext,
+            gameSizing.width * posX + gameSizing.shift + 25,
+            gameSizing.height * posY, gameSizing.width - 50, gameSizing.height, gameContext,
             winnerP1, imageP1 + "", stats, this);
 
         pictureCardList.add(pictureCard1);
@@ -331,8 +335,8 @@ public class Bera implements GameLifeCycle {
         posX++;
 
         final net.gazeplay.games.bera.PictureCard pictureCard2 = new net.gazeplay.games.bera.PictureCard(
-            gameSizing.width * posX + gameSizing.shift,
-            gameSizing.height * posY, gameSizing.width, gameSizing.height, gameContext,
+            gameSizing.width * posX + gameSizing.shift + 25,
+            gameSizing.height * posY, gameSizing.width - 50, gameSizing.height, gameContext,
             winnerP2, imageP2 + "", stats, this);
 
         pictureCardList.add(pictureCard2);
@@ -577,6 +581,7 @@ public class Bera implements GameLifeCycle {
 
     private void next(boolean value) {
         if (value) {
+            this.nbCountErrorSave = this.nbCountError;
             this.totalItemsAddedManually += 1;
             currentRoundDetails.getPictureCardList().get(0).onCorrectCardSelected();
         } else {
@@ -587,6 +592,7 @@ public class Bera implements GameLifeCycle {
 
     private void removeItemAddedManually() {
         if (this.totalItemsAddedManually != 0 && this.canRemoveItemManually) {
+            this.nbCountError = this.nbCountErrorSave + 1;
             this.totalItemsAddedManually -= 1;
             this.canRemoveItemManually = false;
         }

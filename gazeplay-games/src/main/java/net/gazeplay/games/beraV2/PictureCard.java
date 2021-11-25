@@ -33,7 +33,7 @@ class PictureCard extends Group {
     private final boolean winner;
 
     private final ImageView imageRectangle;
-    private final Rectangle errorImageRectangle;
+    private final Rectangle notifImageRectangle;
 
     private final double initialWidth;
     private final double initialHeight;
@@ -77,11 +77,11 @@ class PictureCard extends Group {
 
         this.progressIndicator = buildProgressIndicator(width, height);
 
-        this.errorImageRectangle = createErrorImageRectangle();
+        this.notifImageRectangle = createNotifImageRectangle();
 
         this.getChildren().add(imageRectangle);
         this.getChildren().add(progressIndicator);
-        this.getChildren().add(errorImageRectangle);
+        this.getChildren().add(notifImageRectangle);
 
         customInputEventHandlerMouse = new PictureCard.CustomInputEventHandlerMouse();
 
@@ -123,6 +123,7 @@ class PictureCard extends Group {
                     onWrongCardSelected();
                 }
             } else {
+                this.checkedImage();
                 this.alreadySee = true;
                 customInputEventHandlerMouse.ignoreAnyInput = true;
                 this.newProgressIndicator();
@@ -142,12 +143,20 @@ class PictureCard extends Group {
         this.getChildren().add(progressIndicator);
     }
 
+    public void checkedImage(){
+        notifImageRectangle.setOpacity(1);
+        notifImageRectangle.setVisible(true);
+    }
+
     public void onCorrectCardSelected() {
 
         if (gameInstance.indexFileImage == (gameInstance.indexEndGame - 1)) {
+            progressIndicator.setVisible(false);
             gameInstance.increaseIndexFileImage(true);
             this.endGame();
         } else {
+
+            gameInstance.nbCountError = 0;
             gameInstance.increaseIndexFileImage(true);
 
             stats.incrementNumberOfGoalsReached();
@@ -166,21 +175,30 @@ class PictureCard extends Group {
 
     public void onWrongCardSelected() {
 
-        if (gameInstance.indexFileImage == (gameInstance.indexEndGame - 1)) {
-            this.endGame();
-        } else {
-            gameInstance.increaseIndexFileImage(false);
+        gameInstance.nbCountError += 1;
 
-            stats.incrementNumberOfGoalsReached();
+        if (gameInstance.nbCountError != 5){
 
-            customInputEventHandlerMouse.ignoreAnyInput = true;
+            if (gameInstance.indexFileImage == (gameInstance.indexEndGame - 1)) {
+                progressIndicator.setVisible(false);
+                this.endGame();
+            } else {
+                gameInstance.increaseIndexFileImage(false);
+
+                stats.incrementNumberOfGoalsReached();
+
+                customInputEventHandlerMouse.ignoreAnyInput = true;
+                progressIndicator.setVisible(false);
+
+                gameContext.updateScore(stats, gameInstance);
+
+                gameInstance.dispose();
+                gameContext.clear();
+                gameInstance.launch();
+            }
+        }else {
             progressIndicator.setVisible(false);
-
-            gameContext.updateScore(stats, gameInstance);
-
-            gameInstance.dispose();
-            gameContext.clear();
-            gameInstance.launch();
+            this.endGame();
         }
     }
 
@@ -210,26 +228,26 @@ class PictureCard extends Group {
         return result;
     }
 
-    private Rectangle createErrorImageRectangle() {
-        final Image image = new Image("data/common/images/error.png");
+    private Rectangle createNotifImageRectangle() {
+        final Image image = new Image("data/common/images/blackCircle.png");
 
         double imageWidth = image.getWidth();
         double imageHeight = image.getHeight();
         double imageHeightToWidthRatio = imageHeight / imageWidth;
 
-        double rectangleWidth = imageRectangle.getFitWidth() / 3;
+        double rectangleWidth = imageRectangle.getFitWidth() / 40;
         double rectangleHeight = imageHeightToWidthRatio * rectangleWidth;
 
-        double positionX = imageRectangle.getX() + (imageRectangle.getFitWidth() - rectangleWidth) / 2;
-        double positionY = imageRectangle.getY() + (imageRectangle.getFitHeight() - rectangleHeight) / 2;
+        double positionX = imageRectangle.getX() + 5;
+        double positionY = imageRectangle.getY() + 35;
 
-        Rectangle errorImageRectangle = new Rectangle(rectangleWidth, rectangleHeight);
-        errorImageRectangle.setFill(new ImagePattern(image));
-        errorImageRectangle.setX(positionX);
-        errorImageRectangle.setY(positionY);
-        errorImageRectangle.setOpacity(0);
-        errorImageRectangle.setVisible(false);
-        return errorImageRectangle;
+        Rectangle notifImageRectangle = new Rectangle(rectangleWidth, rectangleHeight);
+        notifImageRectangle.setFill(new ImagePattern(image));
+        notifImageRectangle.setX(positionX);
+        notifImageRectangle.setY(positionY);
+        notifImageRectangle.setOpacity(0);
+        notifImageRectangle.setVisible(false);
+        return notifImageRectangle;
     }
 
     private ProgressIndicator buildProgressIndicator(double parentWidth, double parentHeight) {
@@ -282,6 +300,9 @@ class PictureCard extends Group {
                 onEntered();
             } else if (e.getEventType() == MouseEvent.MOUSE_EXITED || e.getEventType() == GazeEvent.GAZE_EXITED) {
                 onExited();
+            } else if (gameInstance.reEntered && (e.getEventType() == MouseEvent.MOUSE_MOVED || e.getEventType() == GazeEvent.GAZE_MOVED)){
+                gameInstance.reEntered = false;
+                onEntered();
             }
         }
 
