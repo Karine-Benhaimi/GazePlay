@@ -3,6 +3,7 @@ package net.gazeplay.games.bera;
 import javafx.event.EventHandler;
 import javafx.geometry.Dimension2D;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.ImagePattern;
@@ -84,6 +85,9 @@ public class Bera implements GameLifeCycle {
     public CustomInputEventHandlerKeyboard customInputEventHandlerKeyboard = new CustomInputEventHandlerKeyboard();
     private boolean canRemoveItemManually = true;
     public boolean reEntered = false;
+    public boolean goNext = false;
+
+    public ImageView whiteSquarePicture;
 
     public Bera(final boolean fourThree, final IGameContext gameContext, final Stats stats, final BeraGameVariant gameVariant) {
         this.gameContext = gameContext;
@@ -132,6 +136,7 @@ public class Bera implements GameLifeCycle {
         gameContext.firstStart();
 
         this.startGame();
+
     }
 
     public void startGame() {
@@ -201,8 +206,10 @@ public class Bera implements GameLifeCycle {
         if (check) {
             for (final net.gazeplay.games.bera.PictureCard p : currentRoundDetails.getPictureCardList()) {
                 p.setVisibleProgressIndicator();
+                p.setVisibleImagePicture(false);
                 this.reEntered = true;
             }
+            this.createWhiteRectangle();
         }
     }
 
@@ -362,16 +369,41 @@ public class Bera implements GameLifeCycle {
 
         final Text error = new Text(multilinguism.getTranslation("WII-error", language));
         final Region root = gameContext.getRoot();
-        error.setX(root.getWidth() / 2. - 100);
+        error.setX(root.getWidth() / 2. -100);
         error.setY(root.getHeight() / 2.);
         error.setId("item");
         gameContext.getChildren().addAll(error);
+    }
+
+    public void createWhiteRectangle(){
+
+        final Image whiteSquare = new Image("data/common/images/whiteSquare.png");
+        this.whiteSquarePicture = new ImageView(whiteSquare);
+
+        final Region root = gameContext.getRoot();
+
+        this.whiteSquarePicture.setX((root.getWidth() / 2) - (whiteSquare.getWidth() / 2));
+        this.whiteSquarePicture.setY((root.getHeight() / 2) - (whiteSquare.getHeight() / 2));
+        this.whiteSquarePicture.setId("item");
+        this.whiteSquarePicture.setOpacity(1);
+        this.whiteSquarePicture.setVisible(true);
+
+        gameContext.getChildren().addAll(this.whiteSquarePicture);
+
+        this.goNext = true;
     }
 
     public void increaseIndexFileImage(boolean correctAnswer) {
         this.calculateStats(this.indexFileImage, correctAnswer);
         this.indexFileImage = this.indexFileImage + 1;
 
+    }
+
+    public void choicePicturePair(){
+        this.whiteSquarePicture.setVisible(false);
+        for (final net.gazeplay.games.bera.PictureCard p : currentRoundDetails.getPictureCardList()) {
+            p.setVisibleImagePicture(true);
+        }
     }
 
     private void calculateStats(int index, boolean correctAnswer) {
@@ -729,6 +761,11 @@ public class Bera implements GameLifeCycle {
 
         @Override
         public void handle(KeyEvent key) {
+
+            if (key.getCode().isArrowKey() && goNext){
+                goNext = false;
+                choicePicturePair();
+            }
 
             if (ignoreAnyInput) {
                 return;

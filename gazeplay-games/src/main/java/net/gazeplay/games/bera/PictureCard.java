@@ -50,7 +50,7 @@ class PictureCard extends Group {
     private boolean selected;
     private boolean alreadySee;
 
-    private int valueProgressIndicator = 200;
+    private int valueProgressIndicator = 500;
 
     PictureCard(double posX, double posY, double width, double height, @NonNull IGameContext gameContext,
                 boolean winner, @NonNull String imagePath, @NonNull Stats stats, Bera gameInstance) {
@@ -134,6 +134,10 @@ class PictureCard extends Group {
 
     public void setVisibleProgressIndicator() {
         customInputEventHandlerMouse.ignoreAnyInput = false;
+    }
+
+    public void setVisibleImagePicture(boolean value){
+        this.imageRectangle.setVisible(value);
     }
 
     public void newProgressIndicator() {
@@ -300,10 +304,10 @@ class PictureCard extends Group {
                 onEntered();
             } else if (e.getEventType() == MouseEvent.MOUSE_EXITED || e.getEventType() == GazeEvent.GAZE_EXITED) {
                 onExited();
-            } else if (gameInstance.reEntered && (e.getEventType() == MouseEvent.MOUSE_MOVED || e.getEventType() == GazeEvent.GAZE_MOVED)){
+            } /*else if (gameInstance.reEntered && (e.getEventType() == MouseEvent.MOUSE_MOVED || e.getEventType() == GazeEvent.GAZE_MOVED)){
                 gameInstance.reEntered = false;
                 onEntered();
-            }
+            }*/
         }
 
         private void onEntered() {
