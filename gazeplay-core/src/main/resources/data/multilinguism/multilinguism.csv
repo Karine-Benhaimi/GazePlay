@@ -374,7 +374,10 @@ HightF,,,,,,Hight,,Grandes,,,,,,,,,,,,
 NormalF,,,,,,Normal,,Normales,,,,,,,,,,,,
 SmallF,,,,,,Small,,Petites,,,,,,,,,,,,
 TinyF,,,,,,Tiny,,Minuscules,,,,,,,,,,,,
-Space,,,,,, ,, ,,,,,,,,,,,,
+
+BeraSettings,,,,,,Settings for Bera games,,Paramètres pour les jeux Bera,,,,,,,,,,,,
+QuestionTime,,,,,,Time for ask the question,,Temps pour énoncer la question,,,,,,,,,,,,
+TransitionTime,,,,,,Transition time,,Temps de transition,,,,,,,,,,,,
 
 BeraV1,,,,,,Bera version 1,,Bera version 1,,,,,,,,,,,,
 BeraV2,,,,,,Bera version 2,,Bera version 2,,,,,,,,,,,,

@@ -211,7 +211,7 @@ public class ConfigurationContext extends GraphicalContext<BorderPane> {
             addToGrid(grid, currentFormRow, label, input);
         }
 
-        if (Utils.isWindows()) {
+        /*if (Utils.isWindows()) {
             {
                 I18NText label = new I18NText(translator, "CreateShortCut", COLON);
 
@@ -219,11 +219,29 @@ public class ConfigurationContext extends GraphicalContext<BorderPane> {
 
                 addToGrid(grid, currentFormRow, label, input);
             }
+        }*/
+
+        // Games settings
+        addCategoryTitle(grid, currentFormRow, new I18NText(translator, "BeraSettings", COLON));
+
+        {
+            I18NText label = new I18NText(translator, "TransitionTime", COLON);
+
+            Spinner<Double> input = buildSpinner(1, 3, (double) config.getTransitionTime() / 1000,
+                0.5, config.getTransitionTimeProperty());
+
+            addToGrid(grid, currentFormRow, label, input);
+        }
+        {
+            I18NText label = new I18NText(translator, "QuestionTime", COLON);
+
+            Spinner<Double> input = buildSpinner(1, 10, (double) config.getQuestionTime() / 1000,
+                0.5, config.getQuestionTimeProperty());
+
+            addToGrid(grid, currentFormRow, label, input);
         }
 
-        addCategoryTitle(grid, currentFormRow, new I18NText(translator, "GamesSettings", COLON));
-        // Games settings
-        {
+        /*{
             I18NText label = new I18NText(translator, "QuitKey", COLON);
 
             ChoiceBox<String> input = buildQuitKeyChooser(config);
@@ -265,8 +283,7 @@ public class ConfigurationContext extends GraphicalContext<BorderPane> {
             HBox input = buildLimiterScore(config, translator);
 
             addToGrid(grid, currentFormRow, label, input);
-        }
-
+        }*/
 
         addCategoryTitle(grid, currentFormRow, new I18NText(translator, "EyeTrackerSettings", COLON));
         // Eye Tracking settings

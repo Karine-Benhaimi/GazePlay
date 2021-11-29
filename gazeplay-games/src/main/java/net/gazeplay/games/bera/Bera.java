@@ -1,5 +1,9 @@
 package net.gazeplay.games.bera;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Dimension2D;
 import javafx.scene.image.Image;
@@ -9,9 +13,12 @@ import javafx.scene.layout.Region;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
+import javafx.util.Duration;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.gazeplay.GameLifeCycle;
 import net.gazeplay.IGameContext;
+import net.gazeplay.commons.configuration.ActiveConfigurationContext;
 import net.gazeplay.commons.configuration.Configuration;
 import net.gazeplay.commons.gamevariants.difficulty.Difficulty;
 import net.gazeplay.commons.gamevariants.difficulty.SourceSet;
@@ -88,6 +95,8 @@ public class Bera implements GameLifeCycle {
     public boolean goNext = false;
 
     public ImageView whiteSquarePicture;
+    private Timeline timelineTransition = waitForTransition();
+    private Timeline timelineQuestion = waitForQuestion();
 
     public Bera(final boolean fourThree, final IGameContext gameContext, final Stats stats, final BeraGameVariant gameVariant) {
         this.gameContext = gameContext;
@@ -204,13 +213,47 @@ public class Bera implements GameLifeCycle {
             }
         }
         if (check) {
-            for (final net.gazeplay.games.bera.PictureCard p : currentRoundDetails.getPictureCardList()) {
-                p.setVisibleProgressIndicator();
-                p.setVisibleImagePicture(false);
-                this.reEntered = true;
-            }
-            this.createWhiteRectangle();
+            this.timelineTransition.playFromStart();
         }
+    }
+
+    public Timeline waitForTransition(){
+
+        Configuration config = ActiveConfigurationContext.getInstance();
+
+        log.info("TRANSITION TIME : {}", config.getTransitionTime());
+
+        Timeline transition = new Timeline();
+        transition.getKeyFrames().add(new KeyFrame(new Duration(config.getTransitionTime())));
+        transition.setOnFinished(event -> {
+            returnOnPictureCards();
+        });
+        return transition;
+    }
+
+    public void returnOnPictureCards(){
+
+        for (final net.gazeplay.games.bera.PictureCard p : currentRoundDetails.getPictureCardList()) {
+            p.setVisibleProgressIndicator();
+            p.setVisibleImagePicture(false);
+            this.reEntered = true;
+        }
+        this.createWhiteRectangle();
+        this.timelineQuestion.playFromStart();
+    }
+
+    public Timeline waitForQuestion(){
+
+        Configuration config = ActiveConfigurationContext.getInstance();
+
+        log.info("QUESTION TIME : {}", config.getQuestionTime());
+
+        Timeline question = new Timeline();
+        question.getKeyFrames().add(new KeyFrame(new Duration(config.getQuestionTime())));
+        question.setOnFinished(event -> {
+            this.choicePicturePair();
+        });
+        return question;
     }
 
     /**
@@ -763,6 +806,7 @@ public class Bera implements GameLifeCycle {
         public void handle(KeyEvent key) {
 
             if (key.getCode().isArrowKey() && goNext){
+                timelineQuestion.stop();
                 goNext = false;
                 choicePicturePair();
             }
@@ -773,11 +817,17 @@ public class Bera implements GameLifeCycle {
 
             if (key.getCode().getChar().equals("X")) {
                 ignoreAnyInput = true;
+                timelineTransition.stop();
+                timelineQuestion.stop();
                 next(true);
             } else if (key.getCode().getChar().equals("C")) {
                 ignoreAnyInput = true;
+                timelineTransition.stop();
+                timelineQuestion.stop();
                 next(false);
             } else if (key.getCode().getChar().equals("V")) {
+                timelineTransition.stop();
+                timelineQuestion.stop();
                 removeItemAddedManually();
             }
         }

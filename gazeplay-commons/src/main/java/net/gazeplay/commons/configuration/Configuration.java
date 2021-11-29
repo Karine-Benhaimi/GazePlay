@@ -64,6 +64,8 @@ public class Configuration {
     private static final String PROPERTY_NAME_FAVORITE_GAMES = "FAVORITE_GAMES";
     private static final String PROPERTY_NAME_HIDDEN_CATEGORIES = "HIDDEN_CATEGORIES";
     private static final String PROPERTY_NAME_ELEMENTSIZE = "ELEMENT_SIZE";
+    private static final String PROPERTY_NAME_QUESTION_TIME = "QUESTION_TIME";
+    private static final String PROPERTY_NAME_TRANSITION_TIME = "TRANSITION_TIME";
 
     private static final KeyCode DEFAULT_VALUE_QUIT_KEY = KeyCode.Q;
     private static final String DEFAULT_VALUE_EYETRACKER = EyeTracker.mouse_control.toString();
@@ -96,6 +98,8 @@ public class Configuration {
     private static final String DEFAULT_VALUE_USER_NAME = "";
     private static final String DEFAULT_VALUE_USER_PICTURE = "";
     private static final int DEFAULT_VALUE_ELEMENT_SIZE = 50;
+    private static final int DEFAULT_VALUE_TRANSITION_TIME = 2000;
+    private static final int DEFAULT_VALUE_QUESTION_TIME = 5000;
 
     /*
     source : "http://pre07.deviantart.net/c66f/th/pre/i/2016/195/f/8/hatsune_miku_v4x_render_by_katrinasantiago0627-da9y7yr.png";
@@ -223,6 +227,12 @@ public class Configuration {
     @Getter
     private final IntegerProperty elementSizeProperty;
 
+    @Getter
+    private final IntegerProperty questionTimeProperty;
+
+    @Getter
+    private final IntegerProperty transitionTimeProperty;
+
     private final File configFile;
 
     private final ApplicationConfig applicationConfig;
@@ -296,6 +306,8 @@ public class Configuration {
 
         elementSizeProperty = new ApplicationConfigBackedIntegerProperty(applicationConfig, PROPERTY_NAME_ELEMENTSIZE, DEFAULT_VALUE_ELEMENT_SIZE, propertyChangeListener);
 
+        questionTimeProperty = new ApplicationConfigBackedIntegerProperty(applicationConfig, PROPERTY_NAME_QUESTION_TIME, DEFAULT_VALUE_QUESTION_TIME, propertyChangeListener);
+        transitionTimeProperty = new ApplicationConfigBackedIntegerProperty(applicationConfig, PROPERTY_NAME_TRANSITION_TIME, DEFAULT_VALUE_TRANSITION_TIME, propertyChangeListener);
     }
 
     private void saveConfig() throws IOException {
@@ -464,4 +476,13 @@ public class Configuration {
     public Integer getElementSize() {
         return elementSizeProperty.getValue();
     }
+
+    public Integer getQuestionTime() {
+        return questionTimeProperty.getValue();
+    }
+
+    public Integer getTransitionTime() {
+        return transitionTimeProperty.getValue();
+    }
+
 }
