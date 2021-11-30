@@ -73,29 +73,9 @@ public class LatestNewsPopup {
         return new Dimension2D(width, height);
     }
 
-    public static void displayIfNeeded(
-        Configuration config,
-        Translator translator,
-        Supplier<Dimension2D> screenDimensionSupplier) {
-        if (wasDisplayRecently(config) && !config.isLatestNewsDisplayForced()) {
-            // popup was already shown recently
-            // we do not want to bother the user again with this popup
-            return;
-        }
-
-        LatestNewsPopup latestNewsPopup = new LatestNewsPopup(config, translator, screenDimensionSupplier);
-        latestNewsPopup.loadPage();
-        latestNewsPopup.showAndWait();
-    }
-
-    private static boolean wasDisplayRecently(Configuration config) {
-        return config.getLatestNewsPopupShownTime().get() > System.currentTimeMillis() - TimeUnit.DAYS.toMillis(1);
-    }
-
     private void markDisplayedNow(Configuration config) {
         config.getLatestNewsPopupShownTime().set(System.currentTimeMillis());
     }
-
 
     public LatestNewsPopup(
         Configuration config,

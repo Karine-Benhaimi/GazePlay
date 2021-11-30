@@ -66,7 +66,6 @@ public class GazePlayFxApp extends Application {
     @Override
     public void start(final Stage primaryStage) {
 
-        final Configuration mainConfig = ActiveConfigurationContext.getInstance();
         boolean displayStageAtTheEnd = true;
 
         boolean showUserSelectPage = true;
@@ -105,8 +104,6 @@ public class GazePlayFxApp extends Application {
         }
 
         configurePrimaryStage(primaryStage);
-
-        LatestNewsPopup.displayIfNeeded(mainConfig, gazePlay.getTranslator(), gazePlay.getCurrentScreenDimensionSupplier());
 
         gazePlay.setPrimaryScene(primaryScene);
         gazePlay.setPrimaryStage(primaryStage);

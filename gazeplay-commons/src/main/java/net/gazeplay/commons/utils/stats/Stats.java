@@ -159,6 +159,7 @@ public class Stats implements GazeMotionListener {
     public int totalItemsAddedManually = 0;
 
     public int total = 0;
+    public long timeGame = 0;
 
     //parameters for AOI
     private int movementHistoryidx = 0;

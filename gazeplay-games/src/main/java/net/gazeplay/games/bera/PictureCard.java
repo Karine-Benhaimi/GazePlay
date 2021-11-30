@@ -19,6 +19,7 @@ import lombok.NonNull;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import net.gazeplay.IGameContext;
+import net.gazeplay.commons.configuration.ActiveConfigurationContext;
 import net.gazeplay.commons.configuration.Configuration;
 import net.gazeplay.commons.gaze.devicemanager.GazeEvent;
 import net.gazeplay.commons.utils.stats.Stats;
@@ -152,6 +153,10 @@ class PictureCard extends Group {
         notifImageRectangle.setVisible(true);
     }
 
+    public void removeEventHandler(){
+        customInputEventHandlerMouse.ignoreAnyInput = true;
+    }
+
     public void onCorrectCardSelected() {
 
         if (gameInstance.indexFileImage == (gameInstance.indexEndGame - 1)) {
@@ -170,9 +175,7 @@ class PictureCard extends Group {
 
             gameContext.updateScore(stats, gameInstance);
 
-            gameInstance.dispose();
-            gameContext.clear();
-            gameInstance.launch();
+            this.waitBeforeNextRound();
         }
 
     }
@@ -196,14 +199,27 @@ class PictureCard extends Group {
 
                 gameContext.updateScore(stats, gameInstance);
 
-                gameInstance.dispose();
-                gameContext.clear();
-                gameInstance.launch();
+                this.waitBeforeNextRound();
             }
         }else {
             progressIndicator.setVisible(false);
             this.endGame();
         }
+    }
+
+    public void waitBeforeNextRound(){
+        Configuration config = ActiveConfigurationContext.getInstance();
+
+        Timeline transition = new Timeline();
+        transition.getKeyFrames().add(new KeyFrame(new Duration(config.getTransitionTime())));
+        transition.setOnFinished(event -> {
+            gameInstance.dispose();
+            gameContext.clear();
+            gameInstance.launch();
+        });
+
+        gameInstance.removeEventHandlerPictureCard();
+        transition.playFromStart();
     }
 
     private ImageView createImageView(double posX, double posY, double width, double height,

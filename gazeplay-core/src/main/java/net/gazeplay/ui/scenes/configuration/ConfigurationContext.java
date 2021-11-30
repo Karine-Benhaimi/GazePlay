@@ -233,6 +233,12 @@ public class ConfigurationContext extends GraphicalContext<BorderPane> {
             addToGrid(grid, currentFormRow, label, input);
         }
         {
+            I18NText label = new I18NText(translator, "ActivateAutomaticModeQuestion", COLON);
+            CheckBox input = buildCheckBox(config.getQuestionTimeEnabledProperty());
+
+            addToGrid(grid, currentFormRow, label, input);
+        }
+        {
             I18NText label = new I18NText(translator, "QuestionTime", COLON);
 
             Spinner<Double> input = buildSpinner(1, 10, (double) config.getQuestionTime() / 1000,

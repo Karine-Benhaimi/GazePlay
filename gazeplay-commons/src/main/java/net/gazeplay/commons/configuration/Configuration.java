@@ -66,6 +66,7 @@ public class Configuration {
     private static final String PROPERTY_NAME_ELEMENTSIZE = "ELEMENT_SIZE";
     private static final String PROPERTY_NAME_QUESTION_TIME = "QUESTION_TIME";
     private static final String PROPERTY_NAME_TRANSITION_TIME = "TRANSITION_TIME";
+    private static final String PROPERTY_NAME_QUESTION_TIME_ENABLED = "QUESTION_TIME_ENABLED";
 
     private static final KeyCode DEFAULT_VALUE_QUIT_KEY = KeyCode.Q;
     private static final String DEFAULT_VALUE_EYETRACKER = EyeTracker.mouse_control.toString();
@@ -89,7 +90,7 @@ public class Configuration {
     private static final boolean DEFAULT_VALUE_FIXATIONSEQUENCE_DISABLED = false;
     public static final double DEFAULT_VALUE_MUSIC_VOLUME = 0.25d;
     public static final String DEFAULT_VALUE_MUSIC_FOLDER = "";
-    public static final String DEFAULT_VALUE_BACKGROUND_MUSIC = "songidea(copycat)_0.mp3";
+    public static final String DEFAULT_VALUE_BACKGROUND_MUSIC = "";
     private static final Double DEFAULT_VALUE_EFFECTS_VOLUME = DEFAULT_VALUE_MUSIC_VOLUME;
     private static final boolean DEFAULT_VALUE_FORCE_DISPLAY_NEWS = false;
     private static final BackgroundStyle DEFAULT_VALUE_BACKGROUND_STYLE = BackgroundStyle.DARK;
@@ -100,6 +101,7 @@ public class Configuration {
     private static final int DEFAULT_VALUE_ELEMENT_SIZE = 50;
     private static final int DEFAULT_VALUE_TRANSITION_TIME = 2000;
     private static final int DEFAULT_VALUE_QUESTION_TIME = 5000;
+    private static final boolean DEFAULT_VALUE_QUESTION_TIME_ENABLED = false;
 
     /*
     source : "http://pre07.deviantart.net/c66f/th/pre/i/2016/195/f/8/hatsune_miku_v4x_render_by_katrinasantiago0627-da9y7yr.png";
@@ -233,6 +235,9 @@ public class Configuration {
     @Getter
     private final IntegerProperty transitionTimeProperty;
 
+    @Getter
+    private final BooleanProperty questionTimeEnabledProperty;
+
     private final File configFile;
 
     private final ApplicationConfig applicationConfig;
@@ -308,6 +313,8 @@ public class Configuration {
 
         questionTimeProperty = new ApplicationConfigBackedIntegerProperty(applicationConfig, PROPERTY_NAME_QUESTION_TIME, DEFAULT_VALUE_QUESTION_TIME, propertyChangeListener);
         transitionTimeProperty = new ApplicationConfigBackedIntegerProperty(applicationConfig, PROPERTY_NAME_TRANSITION_TIME, DEFAULT_VALUE_TRANSITION_TIME, propertyChangeListener);
+        questionTimeEnabledProperty = new ApplicationConfigBackedBooleanProperty(applicationConfig, PROPERTY_NAME_QUESTION_TIME_ENABLED, DEFAULT_VALUE_QUESTION_TIME_ENABLED, propertyChangeListener);
+
     }
 
     private void saveConfig() throws IOException {
@@ -484,5 +491,7 @@ public class Configuration {
     public Integer getTransitionTime() {
         return transitionTimeProperty.getValue();
     }
+
+    public Boolean isQuestionTimeEnabled(){ return questionTimeEnabledProperty.getValue(); }
 
 }

@@ -97,6 +97,7 @@ public class Bera implements GameLifeCycle {
     public ImageView whiteSquarePicture;
     private Timeline timelineTransition = waitForTransition();
     private Timeline timelineQuestion = waitForQuestion();
+    private Long currentRoundStartTime;
 
     public Bera(final boolean fourThree, final IGameContext gameContext, final Stats stats, final BeraGameVariant gameVariant) {
         this.gameContext = gameContext;
@@ -110,6 +111,7 @@ public class Bera implements GameLifeCycle {
         this.stats.setGameSeed(randomGenerator.getSeed());
 
         this.gameContext.getPrimaryScene().addEventFilter(KeyEvent.KEY_PRESSED, customInputEventHandlerKeyboard);
+        currentRoundStartTime = System.currentTimeMillis();
     }
 
     public Bera(final boolean fourThree, final IGameContext gameContext, final Stats stats, final BeraGameVariant gameVariant, double gameSeed) {
@@ -123,6 +125,7 @@ public class Bera implements GameLifeCycle {
         this.randomGenerator = new ReplayablePseudoRandom(gameSeed);
 
         this.gameContext.getPrimaryScene().addEventFilter(KeyEvent.KEY_PRESSED, customInputEventHandlerKeyboard);
+        currentRoundStartTime = System.currentTimeMillis();
     }
 
     @Override
@@ -233,13 +236,20 @@ public class Bera implements GameLifeCycle {
 
     public void returnOnPictureCards(){
 
+        Configuration config = ActiveConfigurationContext.getInstance();
+
+        log.info("QUESTION TIME ENABLED : {}", config.isQuestionTimeEnabled());
+
         for (final net.gazeplay.games.bera.PictureCard p : currentRoundDetails.getPictureCardList()) {
             p.setVisibleProgressIndicator();
             p.setVisibleImagePicture(false);
             this.reEntered = true;
         }
         this.createWhiteRectangle();
-        this.timelineQuestion.playFromStart();
+
+        if (config.isQuestionTimeEnabled()){
+            this.timelineQuestion.playFromStart();
+        }
     }
 
     public Timeline waitForQuestion(){
@@ -269,6 +279,17 @@ public class Bera implements GameLifeCycle {
             currentRoundDetails = null;
         }
         stats.setTargetAOIList(targetAOIList);
+    }
+
+    public void nextRound(){
+
+        Configuration config = ActiveConfigurationContext.getInstance();
+
+        Timeline transition = new Timeline();
+        transition.getKeyFrames().add(new KeyFrame(new Duration(config.getTransitionTime())));
+        transition.setOnFinished(event -> {
+            this.launch();
+        });
     }
 
     net.gazeplay.games.bera.RoundDetails pickAndBuildRandomPictures(final int numberOfImagesToDisplayPerRound, final int winnerImageIndexAmongDisplayedImages) {
@@ -673,7 +694,16 @@ public class Bera implements GameLifeCycle {
         }
     }
 
+    public void removeEventHandlerPictureCard(){
+        for (final net.gazeplay.games.bera.PictureCard p : currentRoundDetails.getPictureCardList()) {
+            p.removeEventHandler();
+        }
+    }
+
     public void finalStats() {
+
+        stats.timeGame = System.currentTimeMillis() - this.currentRoundStartTime;
+
         if (gameVariant == BeraGameVariant.WORD_COMPREHENSION){
 
             stats.variantType = "WordComprehension";
@@ -741,6 +771,8 @@ public class Bera implements GameLifeCycle {
             out.append("\r\n");
             out.append("Fait le ").append(formatDate.format(now)).append("\r\n");
             out.append("\r\n");
+            out.append("Temps de jeu : ").append(String.valueOf(stats.timeGame / 100)).append(" secondes \r\n");
+            out.append("\r\n");
             out.append("PHONOLOGIE \r\n");
             out.append(" - Total Phonologie : ").append(String.valueOf(this.totalPhonology)).append("/10 \r\n");
             out.append(" - Score items simples : ").append(String.valueOf(this.simpleScoreItemsPhonology)).append("/5 \r\n");
@@ -782,6 +814,8 @@ public class Bera implements GameLifeCycle {
             PrintWriter out = new PrintWriter(statsFile, StandardCharsets.UTF_16);
             out.append("\r\n");
             out.append("Fait le ").append(formatDate.format(now)).append("\r\n");
+            out.append("\r\n");
+            out.append("Temps de jeu : ").append(String.valueOf(stats.timeGame / 100)).append(" secondes \r\n");
             out.append("\r\n");
             out.append("MORPHOSYNTAXE \r\n");
             out.append(" - Total morphosyntaxe : ").append(String.valueOf(this.totalMorphosyntax)).append("/10 \r\n");

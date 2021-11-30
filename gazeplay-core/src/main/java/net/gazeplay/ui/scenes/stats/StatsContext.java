@@ -250,6 +250,8 @@ public class StatsContext extends GraphicalContext<BorderPane> {
 
         if (stats.variantType.equals("WordComprehension")){
 
+            addToGrid(grid, currentFormRow, translator, "TimeGame", new Text(String.valueOf(stats.timeGame / 100) + "s"), alignLeft);
+
             addToGrid(grid, currentFormRow, translator, "PHONOLOGY", new Text(""), alignLeft);
             addToGrid(grid, currentFormRow, translator, "TotalPhonology", new Text(String.valueOf(stats.totalPhonology) + "/10"), alignLeft);
             addToGrid(grid, currentFormRow, translator, "SimpleScoreItems", new Text(String.valueOf(stats.simpleScoreItemsPhonology) + "/5"), alignLeft);
@@ -272,6 +274,8 @@ public class StatsContext extends GraphicalContext<BorderPane> {
             addToGrid(grid, currentFormRow, translator, "Total", new Text(String.valueOf(stats.total) + "/20"), alignLeft);
 
         }else if (stats.variantType.equals("SentenceComprehension")){
+
+            addToGrid(grid, currentFormRow, translator, "TimeGame", new Text(String.valueOf(stats.timeGame / 100.) + "s"), alignLeft);
 
             addToGrid(grid, currentFormRow, translator, "MORPHOSYNTAX", new Text(""), alignLeft);
             addToGrid(grid, currentFormRow, translator, "TotalMorphosyntax", new Text(String.valueOf(stats.totalMorphosyntax) + "/10"), alignLeft);

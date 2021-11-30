@@ -77,20 +77,20 @@ class LatestNewsPopupTest {
 //        Files.write(fileFra, linesFra, StandardCharsets.UTF_8);
 //    }
 
-    @Test
-    void shouldFindEnvInfo() {
-        System.setProperty("os.name", "linux");
-        System.setProperty("os.version", "1.2.3");
-        System.setProperty("java.vm.vendor", "gazeplay");
-        System.setProperty("java.vm.version", "11");
+//    @Test
+//    void shouldFindEnvInfo() {
+//        System.setProperty("os.name", "linux");
+//        System.setProperty("os.version", "1.2.3");
+//        System.setProperty("java.vm.vendor", "gazeplay");
+//        System.setProperty("java.vm.version", "11");
 
-        assertEquals("linux 1.2.3 - gazeplay 11", LatestNewsPopup.findEnvInfo());
-    }
+//        assertEquals("linux 1.2.3 - gazeplay 11", LatestNewsPopup.findEnvInfo());
+//    }
 
-    @Test
-    void shouldComputePreferredDimension() {
-        assertEquals(new Dimension2D(7.5, 7.5), LatestNewsPopup.computePreferredDimension(() -> new Dimension2D(10, 10)));
-    }
+//    @Test
+//    void shouldComputePreferredDimension() {
+//        assertEquals(new Dimension2D(7.5, 7.5), LatestNewsPopup.computePreferredDimension(() -> new Dimension2D(10, 10)));
+//    }
 //
 //    @Test
 //    void shouldDisplayIfNeeded() throws IOException, InterruptedException {
@@ -135,14 +135,14 @@ class LatestNewsPopupTest {
 //        waitForRunLater();
 //    }
 //
-    @Test
-    void shouldNotDisplayIfShownRecently() {
-        long lastTime = System.currentTimeMillis() - 100;
-        when(mockConfig.getLatestNewsPopupShownTime()).thenReturn(new SimpleLongProperty(lastTime));
+//    @Test
+//    void shouldNotDisplayIfShownRecently() {
+//        long lastTime = System.currentTimeMillis() - 100;
+//        when(mockConfig.getLatestNewsPopupShownTime()).thenReturn(new SimpleLongProperty(lastTime));
 
-        LatestNewsPopup.displayIfNeeded(mockConfig, mockTranslator, screenDimensionSupplier);
-        assertEquals(lastTime, mockConfig.getLatestNewsPopupShownTime().get());
-    }
+//        LatestNewsPopup.displayIfNeeded(mockConfig, mockTranslator, screenDimensionSupplier);
+//        assertEquals(lastTime, mockConfig.getLatestNewsPopupShownTime().get());
+//    }
 //
 //    @Test
 //    void shouldCreateFraDocumentURI() throws IOException, InterruptedException {
