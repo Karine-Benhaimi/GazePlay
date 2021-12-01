@@ -99,6 +99,7 @@ public class Bera implements GameLifeCycle {
     private Timeline timelineQuestion = waitForQuestion();
     private Long currentRoundStartTime;
 
+
     public Bera(final boolean fourThree, final IGameContext gameContext, final Stats stats, final BeraGameVariant gameVariant) {
         this.gameContext = gameContext;
         this.fourThree = fourThree;
@@ -111,7 +112,6 @@ public class Bera implements GameLifeCycle {
         this.stats.setGameSeed(randomGenerator.getSeed());
 
         this.gameContext.getPrimaryScene().addEventFilter(KeyEvent.KEY_PRESSED, customInputEventHandlerKeyboard);
-        currentRoundStartTime = System.currentTimeMillis();
     }
 
     public Bera(final boolean fourThree, final IGameContext gameContext, final Stats stats, final BeraGameVariant gameVariant, double gameSeed) {
@@ -125,11 +125,12 @@ public class Bera implements GameLifeCycle {
         this.randomGenerator = new ReplayablePseudoRandom(gameSeed);
 
         this.gameContext.getPrimaryScene().addEventFilter(KeyEvent.KEY_PRESSED, customInputEventHandlerKeyboard);
-        currentRoundStartTime = System.currentTimeMillis();
     }
 
     @Override
     public void launch() {
+
+        this.startTimer();
 
         this.canRemoveItemManually = true;
 
@@ -149,6 +150,12 @@ public class Bera implements GameLifeCycle {
 
         this.startGame();
 
+    }
+
+    public void startTimer(){
+        if (this.indexFileImage == 0){
+            currentRoundStartTime = System.currentTimeMillis();
+        }
     }
 
     public void startGame() {
@@ -365,7 +372,7 @@ public class Bera implements GameLifeCycle {
         String question = null;
         List<Image> pictograms = null;
 
-        final String folder = resourcesFolders.remove(this.indexFileImage);
+        final String folder = resourcesFolders.get(this.indexFileImage);
 
         final Set<String> files = ResourceFileManager.getResourcePaths(folder);
 
@@ -700,6 +707,42 @@ public class Bera implements GameLifeCycle {
         }
     }
 
+    public void resetFromReplay(){
+
+        //Phonology
+        this.totalPhonology = 0;
+        this.simpleScoreItemsPhonology = 0;
+        this.complexScoreItemsPhonology = 0;
+        this.scoreLeftTargetItemsPhonology = 0;
+        this.scoreRightTargetItemsPhonology = 0;
+
+        //Semantics
+        this.totalSemantic = 0;
+        this.simpleScoreItemsSemantic = 0;
+        this.complexScoreItemsSemantic = 0;
+        this.frequentScoreItemSemantic = 0;
+        this.infrequentScoreItemSemantic = 0;
+        this.scoreLeftTargetItemsSemantic = 0;
+        this.scoreRightTargetItemsSemantic = 0;
+
+        //Morphosyntax
+        this.totalMorphosyntax = 0;
+        this.simpleScoreItemsMorphosyntax = 0;
+        this.complexScoreItemsMorphosyntax = 0;
+        this.scoreLeftTargetItemsMorphosyntax = 0;
+        this.scoreRightTargetItemsMorphosyntax = 0;
+
+        //Word comprehension
+        this.totalWordComprehension = 0;
+        this.totalItemsAddedManually = 0;
+
+        this.total = 0;
+
+        this.indexFileImage = 0;
+        this.nbCountError = 0;
+        this.nbCountErrorSave = 0;
+    }
+
     public void finalStats() {
 
         stats.timeGame = System.currentTimeMillis() - this.currentRoundStartTime;
@@ -771,7 +814,7 @@ public class Bera implements GameLifeCycle {
             out.append("\r\n");
             out.append("Fait le ").append(formatDate.format(now)).append("\r\n");
             out.append("\r\n");
-            out.append("Temps de jeu : ").append(String.valueOf(stats.timeGame / 100)).append(" secondes \r\n");
+            out.append("Temps de jeu : ").append(String.valueOf(stats.timeGame / 100.)).append(" secondes \r\n");
             out.append("\r\n");
             out.append("PHONOLOGIE \r\n");
             out.append(" - Total Phonologie : ").append(String.valueOf(this.totalPhonology)).append("/10 \r\n");
@@ -815,7 +858,7 @@ public class Bera implements GameLifeCycle {
             out.append("\r\n");
             out.append("Fait le ").append(formatDate.format(now)).append("\r\n");
             out.append("\r\n");
-            out.append("Temps de jeu : ").append(String.valueOf(stats.timeGame / 100)).append(" secondes \r\n");
+            out.append("Temps de jeu : ").append(String.valueOf(stats.timeGame / 100.)).append(" secondes \r\n");
             out.append("\r\n");
             out.append("MORPHOSYNTAXE \r\n");
             out.append(" - Total morphosyntaxe : ").append(String.valueOf(this.totalMorphosyntax)).append("/10 \r\n");

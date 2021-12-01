@@ -292,6 +292,7 @@ class PictureCard extends Group {
         progressIndicator.setVisible(false);
         gameInstance.finalStats();
         gameContext.updateScore(stats, gameInstance);
+        gameInstance.resetFromReplay();
         gameInstance.dispose();
         gameContext.clear();
         gameContext.showRoundStats(stats, gameInstance);
