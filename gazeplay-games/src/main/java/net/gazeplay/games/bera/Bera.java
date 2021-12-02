@@ -132,8 +132,6 @@ public class Bera implements GameLifeCycle {
     @Override
     public void launch() {
 
-        createExcelSentenceComprehension();
-
         this.startTimer();
 
         this.canRemoveItemManually = true;

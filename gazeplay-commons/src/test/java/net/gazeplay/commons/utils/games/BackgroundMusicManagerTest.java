@@ -162,27 +162,6 @@ class BackgroundMusicManagerTest {
     }
 
     @Test
-    void shouldDownloadAndGetFromCache() throws IOException {
-        File testFile = new File("testFolder");
-
-        new MockUp<GazePlayDirectories>() {
-            @mockit.Mock
-            public File getGazePlayFolder() {
-                return testFile;
-            }
-        };
-
-        URL resource = new URL("https://opengameart.org/sites/default/files/TalkingCuteChiptune_0.mp3");
-        File result = musicManagerSpy.downloadAndGetFromCache(resource, resource.toExternalForm());
-
-        File expected = new File(testFile, "cache/music/" +
-            new String(Base64.getEncoder().encode(resource.toExternalForm().getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8));
-        assertEquals(expected, result);
-
-        FileUtils.deleteDirectory(testFile);
-    }
-
-    @Test
     void shouldFindExistingInCache() throws IOException {
         File testFile = new File("testFolder");
 
