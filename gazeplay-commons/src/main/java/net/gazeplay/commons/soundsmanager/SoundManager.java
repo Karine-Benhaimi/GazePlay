@@ -1,6 +1,5 @@
 package net.gazeplay.commons.soundsmanager;
 
-import javafx.application.Platform;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.gazeplay.commons.utils.games.ForegroundSoundsUtils;

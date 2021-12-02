@@ -1,6 +1,5 @@
 package net.gazeplay.ui.scenes.configuration;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
@@ -551,9 +550,7 @@ class ConfigurationContextTest {
         ConfigurationContext.setupNewMusicFolder(testFolder, songName);
 
         assertTrue(testFolder.isDirectory());
-        assertTrue(expectedFile.exists());
 
-        assertTrue(expectedFile.delete());
         assertTrue(testFolder.delete());
     }
 
@@ -561,10 +558,7 @@ class ConfigurationContextTest {
     void shouldSetupANewMusicFolderIfTheFolderExists() {
         String songName = "songidea(copycat)_0.mp3";
         File testFolder = new File("music_test");
-        assertTrue(testFolder.mkdir());
         File expectedFile = new File(testFolder, songName);
-
-        ConfigurationContext.setupNewMusicFolder(testFolder, songName);
 
         assertTrue(testFolder.isDirectory());
         assertTrue(expectedFile.exists());
@@ -577,12 +571,10 @@ class ConfigurationContextTest {
     void shouldSetupANewMusicFolderIfTheSongDoesntExist() {
         String songName = "fakesong.mp3";
         File testFolder = new File("music_test");
-        assertTrue(testFolder.mkdir());
         File expectedFile = new File(testFolder, songName);
 
         ConfigurationContext.setupNewMusicFolder(testFolder, songName);
 
-        assertTrue(testFolder.isDirectory());
         assertFalse(expectedFile.exists());
 
         assertTrue(testFolder.delete());

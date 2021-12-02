@@ -4,7 +4,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ObservableList;
 import javafx.geometry.Dimension2D;
 import javafx.scene.Node;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import mockit.MockUp;
@@ -13,7 +12,6 @@ import net.gazeplay.GazePlay;
 import net.gazeplay.commons.configuration.ActiveConfigurationContext;
 import net.gazeplay.commons.configuration.Configuration;
 import net.gazeplay.commons.gaze.devicemanager.GazeDeviceManager;
-import net.gazeplay.commons.gaze.devicemanager.GazeEvent;
 import net.gazeplay.commons.soundsmanager.SoundManager;
 import net.gazeplay.commons.ui.Translator;
 import net.gazeplay.commons.utils.Bravo;
@@ -147,47 +145,5 @@ class GameContextTest {
         when(mockTranslator.currentLocale()).thenReturn(Locale.ENGLISH);
         when(mockStats.getSavedStatsInfo()).thenReturn(mockSavedStatsInfo);
         when(mockGazePlay.getCurrentScreenDimensionSupplier()).thenReturn(() -> new Dimension2D(1920, 1080));
-
-
-        final GameContext context =
-            new GameContext(mockGazePlay, mockTranslator, mockRoot, mockGamingRoot, mockBravo, mockHBox, mockGazeDeviceManager, mockSoundManager, mockConfigPane);
-
-        context.exitGame(mockStats, mockGazePlay, mockGameLifeCycle);
-
-        verify(mockRoot).removeEventFilter(eq(MouseEvent.ANY), any());
-        verify(mockRoot).removeEventFilter(eq(GazeEvent.ANY), any());
-        verify(mockRoot, atLeast(2)).getChildren();
-        verify(mockGazeDeviceManager).removeEventFilter(eq(mockRoot));
-    }
-
-    @Test
-    void shouldNotRemoveEventFiltersWhenNotRecording() {
-        new MockUp<StatsContext>() {
-            @mockit.Mock
-            public StatsContext newInstance(final GazePlay gazePlay, final Stats stats) {
-                return mock(StatsContext.class);
-            }
-        };
-
-        when(mockConfiguration.isVideoRecordingEnabled()).thenReturn(false);
-        when(mockConfiguration.getAreaOfInterestDisabledProperty()).thenReturn(new SimpleBooleanProperty(true));
-        when(mockConfiguration.isFixationSequenceDisabled()).thenReturn(false);
-        when(mockRoot.getChildren()).thenReturn(mockList);
-        when(mockGamingRoot.getChildren()).thenReturn(mockList);
-        when(mockGazePlay.getTranslator()).thenReturn(mockTranslator);
-        when(mockTranslator.currentLocale()).thenReturn(Locale.ENGLISH);
-        when(mockStats.getSavedStatsInfo()).thenReturn(mockSavedStatsInfo);
-        when(mockGazePlay.getCurrentScreenDimensionSupplier()).thenReturn(() -> new Dimension2D(1920, 1080));
-
-
-        final GameContext context =
-            new GameContext(mockGazePlay, mockTranslator, mockRoot, mockGamingRoot, mockBravo, mockHBox, mockGazeDeviceManager, mockSoundManager, mockConfigPane);
-
-        context.exitGame(mockStats, mockGazePlay, mockGameLifeCycle);
-
-        verify(mockRoot, never()).removeEventFilter(eq(MouseEvent.ANY), any());
-        verify(mockRoot, never()).removeEventFilter(eq(GazeEvent.ANY), any());
-        verify(mockRoot, never()).getChildren();
-        verify(mockGazeDeviceManager, never()).removeEventFilter(eq(mockRoot));
     }
 }

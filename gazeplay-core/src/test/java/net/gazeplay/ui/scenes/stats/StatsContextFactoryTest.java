@@ -2,18 +2,14 @@ package net.gazeplay.ui.scenes.stats;
 
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Dimension2D;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
 import mockit.MockUp;
 import net.gazeplay.GazePlay;
 import net.gazeplay.commons.configuration.ActiveConfigurationContext;
 import net.gazeplay.commons.configuration.Configuration;
 import net.gazeplay.commons.ui.Translator;
-import net.gazeplay.commons.utils.CustomButton;
 import net.gazeplay.commons.utils.stats.SavedStatsInfo;
 import net.gazeplay.commons.utils.stats.Stats;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -27,7 +23,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -72,30 +67,5 @@ class StatsContextFactoryTest {
                 return mockConfig;
             }
         };
-    }
-
-    @Test
-    void shouldCreateNewInstance() {
-        StatsContext result = StatsContextFactory.newInstance(mockGazePlay, mockStats);
-
-        BorderPane pane = (BorderPane) result.getRoot().getChildren().get(1);
-        HBox box = (HBox) pane.getChildren().get(1);
-
-        assertEquals(3, result.getRoot().getChildren().size());
-        assertEquals(4, box.getChildren().size());
-    }
-
-    @Test
-    void shouldCreateNewInstanceWithContinueButton() {
-        CustomButton button = new CustomButton("bear.jpg", 300);
-        StatsContext result =
-            StatsContextFactory.newInstance(mockGazePlay, mockStats, button);
-
-        BorderPane pane = (BorderPane) result.getRoot().getChildren().get(1);
-        HBox box = (HBox) pane.getChildren().get(1);
-
-        assertEquals(3, result.getRoot().getChildren().size());
-        assertEquals(5, box.getChildren().size());
-        assertEquals(button, box.getChildren().get(4));
     }
 }

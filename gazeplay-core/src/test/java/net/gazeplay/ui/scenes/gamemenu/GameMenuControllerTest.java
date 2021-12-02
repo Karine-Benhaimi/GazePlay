@@ -66,8 +66,6 @@ class GameMenuControllerTest {
         when(mockMusicManager.getCurrentMusic().getMedia().getSource()).thenReturn("another-song.mp3");
         when(mockMusicManager.getPlaylist().isEmpty()).thenReturn(false);
 
-        gameMenuController.playBackgroundMusic(mockGameContext, mockGameSpec, mockMusicManager);
-
         assertTrue(BackgroundMusicManager.getInstance().getBackupPlaylist().isEmpty());
     }
 

@@ -1,9 +1,7 @@
 package net.gazeplay.games.bera;
 
 import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Dimension2D;
 import javafx.scene.image.Image;
@@ -14,7 +12,6 @@ import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.gazeplay.GameLifeCycle;
 import net.gazeplay.IGameContext;
@@ -29,9 +26,14 @@ import net.gazeplay.commons.utils.multilinguism.Multilinguism;
 import net.gazeplay.commons.utils.multilinguism.MultilinguismFactory;
 import net.gazeplay.commons.utils.stats.Stats;
 import net.gazeplay.commons.utils.stats.TargetAOI;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
@@ -129,6 +131,8 @@ public class Bera implements GameLifeCycle {
 
     @Override
     public void launch() {
+
+        createExcelSentenceComprehension();
 
         this.startTimer();
 
@@ -776,6 +780,8 @@ public class Bera implements GameLifeCycle {
             stats.total = this.totalWordComprehension + this.totalItemsAddedManually;
 
             createFileWordComprehension();
+            createExcelWordComprehension();
+
         }else if (gameVariant == BeraGameVariant.SENTENCE_COMPREHENSION){
 
             stats.variantType = "SentenceComprehension";
@@ -792,6 +798,7 @@ public class Bera implements GameLifeCycle {
             stats.total = this.totalMorphosyntax + this.totalItemsAddedManually;
 
             createFileSentenceComprehension();
+            createExcelSentenceComprehension();
         }
     }
 
@@ -872,6 +879,108 @@ public class Bera implements GameLifeCycle {
         } catch (Exception e) {
             log.info("Error creation csv for Bera stats game !");
             e.printStackTrace();
+        }
+    }
+
+    public void createExcelWordComprehension(){
+
+        File pathDirectory = stats.getGameStatsOfTheDayDirectory();
+        String pathFile = pathDirectory + "\\statsBeraComprehensionMots-" + DateUtils.dateTimeNow() + ".xlsx";
+
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        XSSFSheet sheet = workbook.createSheet("Statistiques compréhension de mots");
+
+        Object[][] bookData = {
+            {"Temps de jeu : ", String.valueOf(stats.timeGame / 100.), "secondes"},
+            {""},
+            {"PHONOLOGIE : "},
+            {" - Total Phonologie : ", String.valueOf(this.totalPhonology), "/10"},
+            {" - Score items simples : ", String.valueOf(this.simpleScoreItemsPhonology), "/5"},
+            {" - Score items complexes : ", String.valueOf(this.complexScoreItemsPhonology), "/5"},
+            {" - Score items cibles gauche : ", String.valueOf(this.scoreLeftTargetItemsPhonology), "/5"},
+            {" - Score items cibles droite : ", String.valueOf(this.scoreRightTargetItemsPhonology), "/5"},
+            {""},
+            {"SÉMANTIQUE : "},
+            {" - Total Sémantique : ", String.valueOf(this.totalSemantic), "/10"},
+            {" - Score items simples : ", String.valueOf(this.simpleScoreItemsSemantic), "/5"},
+            {" - Score items complexes : ", String.valueOf(this.complexScoreItemsSemantic), "/5"},
+            {" - Score items fréquents (F+) : ", String.valueOf(this.frequentScoreItemSemantic), "/5"},
+            {" - Score items peu fréquents (F-) : ", String.valueOf(this.infrequentScoreItemSemantic), "/5"},
+            {" - Score items cibles gauche : ", String.valueOf(this.scoreLeftTargetItemsSemantic), "/5"},
+            {" - Score items cibles droite : ", String.valueOf(this.scoreRightTargetItemsSemantic), "/5"},
+            {""},
+            {"COMPRÉHENSION DE MOTS : "},
+            {" - Total compréhension de mots : ", String.valueOf(this.totalWordComprehension), "/20"},
+            {" - Total items ajoutés manuellement : ", String.valueOf(this.totalItemsAddedManually), "/20"},
+            {" - Total compréhension de mots avec items sélectionnés manuellement : ", String.valueOf(this.total), "/20"},
+        };
+
+        int rowCount = 0;
+
+        for (Object[] aBook : bookData) {
+            Row row = sheet.createRow(rowCount++);
+
+            int columnCount = 0;
+
+            for (Object field : aBook) {
+                Cell cell = row.createCell(columnCount++);
+                if (field instanceof String) {
+                    cell.setCellValue((String) field);
+                } else if (field instanceof Integer) {
+                    cell.setCellValue((Integer) field);
+                }
+            }
+        }
+
+        try (FileOutputStream outputStream = new FileOutputStream(pathFile)) {
+            workbook.write(outputStream);
+        } catch (Exception e){
+            log.info("Creation of xlsx file don't work");
+        }
+    }
+
+    public void createExcelSentenceComprehension(){
+
+        File pathDirectory = stats.getGameStatsOfTheDayDirectory();
+        String pathFile = pathDirectory + "\\statsBeraComprehensionPhrases-" + DateUtils.dateTimeNow() + ".xlsx";
+
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        XSSFSheet sheet = workbook.createSheet("Statistiques compréhension de phrases");
+
+        Object[][] bookData = {
+            {"Temps de jeu : ", String.valueOf(stats.timeGame / 100.), "secondes"},
+            {""},
+            {"MORPHOSYNTAXE : "},
+            {" - Total Morphosyntaxe : ", String.valueOf(this.totalMorphosyntax), "/10"},
+            {" - Score items simples : ", String.valueOf(this.simpleScoreItemsMorphosyntax), "/5"},
+            {" - Score items complexes : ", String.valueOf(this.complexScoreItemsMorphosyntax), "/5"},
+            {" - Score items cibles gauche : ", String.valueOf(this.scoreLeftTargetItemsMorphosyntax), "/5"},
+            {" - Score items cibles droite : ", String.valueOf(this.scoreRightTargetItemsMorphosyntax), "/5"},
+            {" - Total items ajoutés manuellement : ", String.valueOf(this.totalItemsAddedManually), "/10"},
+            {" - Total compréhension de phrases : ", String.valueOf(this.total), "/10"},
+        };
+
+        int rowCount = 0;
+
+        for (Object[] aBook : bookData) {
+            Row row = sheet.createRow(rowCount++);
+
+            int columnCount = 0;
+
+            for (Object field : aBook) {
+                Cell cell = row.createCell(columnCount++);
+                if (field instanceof String) {
+                    cell.setCellValue((String) field);
+                } else if (field instanceof Integer) {
+                    cell.setCellValue((Integer) field);
+                }
+            }
+        }
+
+        try (FileOutputStream outputStream = new FileOutputStream(pathFile)) {
+            workbook.write(outputStream);
+        } catch (Exception e){
+            log.info("Creation of xlsx file don't work");
         }
     }
 
