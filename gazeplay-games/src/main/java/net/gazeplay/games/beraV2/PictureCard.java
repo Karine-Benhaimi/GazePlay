@@ -19,6 +19,7 @@ import lombok.NonNull;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import net.gazeplay.IGameContext;
+import net.gazeplay.commons.configuration.ActiveConfigurationContext;
 import net.gazeplay.commons.configuration.Configuration;
 import net.gazeplay.commons.gaze.devicemanager.GazeEvent;
 import net.gazeplay.commons.utils.stats.Stats;
@@ -50,7 +51,7 @@ class PictureCard extends Group {
     private boolean selected;
     private boolean alreadySee;
 
-    private int valueProgressIndicator = 200;
+    private int valueProgressIndicator = 500;
 
     PictureCard(double posX, double posY, double width, double height, @NonNull IGameContext gameContext,
                 boolean winner, @NonNull String imagePath, @NonNull Stats stats, BeraV2 gameInstance) {
@@ -136,6 +137,10 @@ class PictureCard extends Group {
         customInputEventHandlerMouse.ignoreAnyInput = false;
     }
 
+    public void setVisibleImagePicture(boolean value){
+        this.imageRectangle.setVisible(value);
+    }
+
     public void newProgressIndicator() {
         this.getChildren().remove(progressIndicator);
         this.valueProgressIndicator = 2000;
@@ -146,6 +151,10 @@ class PictureCard extends Group {
     public void checkedImage(){
         notifImageRectangle.setOpacity(1);
         notifImageRectangle.setVisible(true);
+    }
+
+    public void removeEventHandler(){
+        customInputEventHandlerMouse.ignoreAnyInput = true;
     }
 
     public void onCorrectCardSelected() {
@@ -166,11 +175,8 @@ class PictureCard extends Group {
 
             gameContext.updateScore(stats, gameInstance);
 
-            gameInstance.dispose();
-            gameContext.clear();
-            gameInstance.launch();
+            this.waitBeforeNextRound();
         }
-
     }
 
     public void onWrongCardSelected() {
@@ -192,14 +198,27 @@ class PictureCard extends Group {
 
                 gameContext.updateScore(stats, gameInstance);
 
-                gameInstance.dispose();
-                gameContext.clear();
-                gameInstance.launch();
+                this.waitBeforeNextRound();
             }
         }else {
             progressIndicator.setVisible(false);
             this.endGame();
         }
+    }
+
+    public void waitBeforeNextRound(){
+        Configuration config = ActiveConfigurationContext.getInstance();
+
+        Timeline transition = new Timeline();
+        transition.getKeyFrames().add(new KeyFrame(new Duration(config.getTransitionTime())));
+        transition.setOnFinished(event -> {
+            gameInstance.dispose();
+            gameContext.clear();
+            gameInstance.launch();
+        });
+
+        gameInstance.removeEventHandlerPictureCard();
+        transition.playFromStart();
     }
 
     private ImageView createImageView(double posX, double posY, double width, double height,
@@ -272,6 +291,7 @@ class PictureCard extends Group {
         progressIndicator.setVisible(false);
         gameInstance.finalStats();
         gameContext.updateScore(stats, gameInstance);
+        gameInstance.resetFromReplay();
         gameInstance.dispose();
         gameContext.clear();
         gameContext.showRoundStats(stats, gameInstance);
@@ -300,9 +320,6 @@ class PictureCard extends Group {
                 onEntered();
             } else if (e.getEventType() == MouseEvent.MOUSE_EXITED || e.getEventType() == GazeEvent.GAZE_EXITED) {
                 onExited();
-            } else if (gameInstance.reEntered && (e.getEventType() == MouseEvent.MOUSE_MOVED || e.getEventType() == GazeEvent.GAZE_MOVED)){
-                gameInstance.reEntered = false;
-                onEntered();
             }
         }
 

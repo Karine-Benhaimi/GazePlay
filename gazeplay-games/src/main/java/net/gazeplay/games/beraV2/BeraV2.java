@@ -1,16 +1,21 @@
 package net.gazeplay.games.beraV2;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.event.EventHandler;
 import javafx.geometry.Dimension2D;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
+import javafx.util.Duration;
 import lombok.extern.slf4j.Slf4j;
 import net.gazeplay.GameLifeCycle;
 import net.gazeplay.IGameContext;
+import net.gazeplay.commons.configuration.ActiveConfigurationContext;
 import net.gazeplay.commons.configuration.Configuration;
 import net.gazeplay.commons.gamevariants.difficulty.Difficulty;
 import net.gazeplay.commons.gamevariants.difficulty.SourceSet;
@@ -21,9 +26,14 @@ import net.gazeplay.commons.utils.multilinguism.Multilinguism;
 import net.gazeplay.commons.utils.multilinguism.MultilinguismFactory;
 import net.gazeplay.commons.utils.stats.Stats;
 import net.gazeplay.commons.utils.stats.TargetAOI;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
@@ -84,6 +94,12 @@ public class BeraV2 implements GameLifeCycle {
     public CustomInputEventHandlerKeyboard customInputEventHandlerKeyboard = new CustomInputEventHandlerKeyboard();
     private boolean canRemoveItemManually = true;
     public boolean reEntered = false;
+    public boolean goNext = false;
+
+    public ImageView whiteSquarePicture;
+    private Timeline timelineTransition = waitForTransition();
+    private Timeline timelineQuestion = waitForQuestion();
+    private Long currentRoundStartTime;
 
     public BeraV2(final boolean fourThree, final IGameContext gameContext, final Stats stats, final BeraV2GameVariant gameVariant) {
         this.gameContext = gameContext;
@@ -115,6 +131,8 @@ public class BeraV2 implements GameLifeCycle {
     @Override
     public void launch() {
 
+        this.startTimer();
+
         this.canRemoveItemManually = true;
 
         gameContext.setLimiterAvailable();
@@ -132,6 +150,12 @@ public class BeraV2 implements GameLifeCycle {
         gameContext.firstStart();
 
         this.startGame();
+    }
+
+    public void startTimer(){
+        if (this.indexFileImage == 0){
+            currentRoundStartTime = System.currentTimeMillis();
+        }
     }
 
     public void startGame() {
@@ -199,11 +223,54 @@ public class BeraV2 implements GameLifeCycle {
             }
         }
         if (check) {
-            for (final net.gazeplay.games.beraV2.PictureCard p : currentRoundDetails.getPictureCardList()) {
-                p.setVisibleProgressIndicator();
-                this.reEntered = true;
-            }
+            this.timelineTransition.playFromStart();
         }
+    }
+
+    public Timeline waitForTransition(){
+
+        Configuration config = ActiveConfigurationContext.getInstance();
+
+        log.info("TRANSITION TIME : {}", config.getTransitionTime());
+
+        Timeline transition = new Timeline();
+        transition.getKeyFrames().add(new KeyFrame(new Duration(config.getTransitionTime())));
+        transition.setOnFinished(event -> {
+            returnOnPictureCards();
+        });
+        return transition;
+    }
+
+    public void returnOnPictureCards(){
+
+        Configuration config = ActiveConfigurationContext.getInstance();
+
+        log.info("QUESTION TIME ENABLED : {}", config.isQuestionTimeEnabled());
+
+        for (final net.gazeplay.games.beraV2.PictureCard p : currentRoundDetails.getPictureCardList()) {
+            p.setVisibleProgressIndicator();
+            p.setVisibleImagePicture(false);
+            this.reEntered = true;
+        }
+        this.createWhiteRectangle();
+
+        if (config.isQuestionTimeEnabled()){
+            this.timelineQuestion.playFromStart();
+        }
+    }
+
+    public Timeline waitForQuestion(){
+
+        Configuration config = ActiveConfigurationContext.getInstance();
+
+        log.info("QUESTION TIME : {}", config.getQuestionTime());
+
+        Timeline question = new Timeline();
+        question.getKeyFrames().add(new KeyFrame(new Duration(config.getQuestionTime())));
+        question.setOnFinished(event -> {
+            this.choicePicturePair();
+        });
+        return question;
     }
 
     /**
@@ -219,6 +286,17 @@ public class BeraV2 implements GameLifeCycle {
             currentRoundDetails = null;
         }
         stats.setTargetAOIList(targetAOIList);
+    }
+
+    public void nextRound(){
+
+        Configuration config = ActiveConfigurationContext.getInstance();
+
+        Timeline transition = new Timeline();
+        transition.getKeyFrames().add(new KeyFrame(new Duration(config.getTransitionTime())));
+        transition.setOnFinished(event -> {
+            this.launch();
+        });
     }
 
     net.gazeplay.games.beraV2.RoundDetails pickAndBuildRandomPictures(final int numberOfImagesToDisplayPerRound, final int winnerImageIndexAmongDisplayedImages) {
@@ -368,10 +446,35 @@ public class BeraV2 implements GameLifeCycle {
         gameContext.getChildren().addAll(error);
     }
 
+    public void createWhiteRectangle(){
+
+        final Image whiteSquare = new Image("data/common/images/whiteSquare.png");
+        this.whiteSquarePicture = new ImageView(whiteSquare);
+
+        final Region root = gameContext.getRoot();
+
+        this.whiteSquarePicture.setX((root.getWidth() / 2) - (whiteSquare.getWidth() / 2));
+        this.whiteSquarePicture.setY((root.getHeight() / 2) - (whiteSquare.getHeight() / 2));
+        this.whiteSquarePicture.setId("item");
+        this.whiteSquarePicture.setOpacity(1);
+        this.whiteSquarePicture.setVisible(true);
+
+        gameContext.getChildren().addAll(this.whiteSquarePicture);
+
+        this.goNext = true;
+    }
+
     public void increaseIndexFileImage(boolean correctAnswer) {
         this.calculateStats(this.indexFileImage, correctAnswer);
         this.indexFileImage = this.indexFileImage + 1;
 
+    }
+
+    public void choicePicturePair(){
+        this.whiteSquarePicture.setVisible(false);
+        for (final net.gazeplay.games.beraV2.PictureCard p : currentRoundDetails.getPictureCardList()) {
+            p.setVisibleImagePicture(true);
+        }
     }
 
     private void calculateStats(int index, boolean correctAnswer) {
@@ -587,7 +690,6 @@ public class BeraV2 implements GameLifeCycle {
         } else {
             currentRoundDetails.getPictureCardList().get(0).onWrongCardSelected();
         }
-
     }
 
     private void removeItemAddedManually() {
@@ -598,7 +700,52 @@ public class BeraV2 implements GameLifeCycle {
         }
     }
 
+    public void removeEventHandlerPictureCard(){
+        for (final net.gazeplay.games.beraV2.PictureCard p : currentRoundDetails.getPictureCardList()) {
+            p.removeEventHandler();
+        }
+    }
+
+    public void resetFromReplay(){
+
+        //Phonology
+        this.totalPhonology = 0;
+        this.simpleScoreItemsPhonology = 0;
+        this.complexScoreItemsPhonology = 0;
+        this.scoreLeftTargetItemsPhonology = 0;
+        this.scoreRightTargetItemsPhonology = 0;
+
+        //Semantics
+        this.totalSemantic = 0;
+        this.simpleScoreItemsSemantic = 0;
+        this.complexScoreItemsSemantic = 0;
+        this.frequentScoreItemSemantic = 0;
+        this.infrequentScoreItemSemantic = 0;
+        this.scoreLeftTargetItemsSemantic = 0;
+        this.scoreRightTargetItemsSemantic = 0;
+
+        //Morphosyntax
+        this.totalMorphosyntax = 0;
+        this.simpleScoreItemsMorphosyntax = 0;
+        this.complexScoreItemsMorphosyntax = 0;
+        this.scoreLeftTargetItemsMorphosyntax = 0;
+        this.scoreRightTargetItemsMorphosyntax = 0;
+
+        //Word comprehension
+        this.totalWordComprehension = 0;
+        this.totalItemsAddedManually = 0;
+
+        this.total = 0;
+
+        this.indexFileImage = 0;
+        this.nbCountError = 0;
+        this.nbCountErrorSave = 0;
+    }
+
     public void finalStats() {
+
+        stats.timeGame = System.currentTimeMillis() - this.currentRoundStartTime;
+
         if (gameVariant == BeraV2GameVariant.WORD_COMPREHENSION_V2){
 
             stats.variantType = "WordComprehension";
@@ -628,6 +775,8 @@ public class BeraV2 implements GameLifeCycle {
             stats.total = this.totalWordComprehension + this.totalItemsAddedManually;
 
             createFileWordComprehension();
+            createExcelWordComprehension();
+
         }else if (gameVariant == BeraV2GameVariant.SENTENCE_COMPREHENSION_V2){
 
             stats.variantType = "SentenceComprehension";
@@ -644,6 +793,7 @@ public class BeraV2 implements GameLifeCycle {
             stats.total = this.totalMorphosyntax + this.totalItemsAddedManually;
 
             createFileSentenceComprehension();
+            createExcelSentenceComprehension();
         }
     }
 
@@ -665,6 +815,8 @@ public class BeraV2 implements GameLifeCycle {
             PrintWriter out = new PrintWriter(statsFile, StandardCharsets.UTF_16);
             out.append("\r\n");
             out.append("Fait le ").append(formatDate.format(now)).append("\r\n");
+            out.append("\r\n");
+            out.append("Temps de jeu : ").append(String.valueOf(stats.timeGame / 100.)).append(" secondes \r\n");
             out.append("\r\n");
             out.append("PHONOLOGIE \r\n");
             out.append(" - Total Phonologie : ").append(String.valueOf(this.totalPhonology)).append("/10 \r\n");
@@ -708,6 +860,8 @@ public class BeraV2 implements GameLifeCycle {
             out.append("\r\n");
             out.append("Fait le ").append(formatDate.format(now)).append("\r\n");
             out.append("\r\n");
+            out.append("Temps de jeu : ").append(String.valueOf(stats.timeGame / 100.)).append(" secondes \r\n");
+            out.append("\r\n");
             out.append("MORPHOSYNTAXE \r\n");
             out.append(" - Total morphosyntaxe : ").append(String.valueOf(this.totalMorphosyntax)).append("/10 \r\n");
             out.append(" - Score items simples : ").append(String.valueOf(this.simpleScoreItemsMorphosyntax)).append("/5 \r\n");
@@ -723,6 +877,108 @@ public class BeraV2 implements GameLifeCycle {
         }
     }
 
+    public void createExcelWordComprehension(){
+
+        File pathDirectory = stats.getGameStatsOfTheDayDirectory();
+        String pathFile = pathDirectory + "\\statsBeraComprehensionMots-" + DateUtils.dateTimeNow() + ".xlsx";
+
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        XSSFSheet sheet = workbook.createSheet("Statistiques compréhension de mots");
+
+        Object[][] bookData = {
+            {"Temps de jeu : ", String.valueOf(stats.timeGame / 100.), "secondes"},
+            {""},
+            {"PHONOLOGIE : "},
+            {" - Total Phonologie : ", String.valueOf(this.totalPhonology), "/10"},
+            {" - Score items simples : ", String.valueOf(this.simpleScoreItemsPhonology), "/5"},
+            {" - Score items complexes : ", String.valueOf(this.complexScoreItemsPhonology), "/5"},
+            {" - Score items cibles gauche : ", String.valueOf(this.scoreLeftTargetItemsPhonology), "/5"},
+            {" - Score items cibles droite : ", String.valueOf(this.scoreRightTargetItemsPhonology), "/5"},
+            {""},
+            {"SÉMANTIQUE : "},
+            {" - Total Sémantique : ", String.valueOf(this.totalSemantic), "/10"},
+            {" - Score items simples : ", String.valueOf(this.simpleScoreItemsSemantic), "/5"},
+            {" - Score items complexes : ", String.valueOf(this.complexScoreItemsSemantic), "/5"},
+            {" - Score items fréquents (F+) : ", String.valueOf(this.frequentScoreItemSemantic), "/5"},
+            {" - Score items peu fréquents (F-) : ", String.valueOf(this.infrequentScoreItemSemantic), "/5"},
+            {" - Score items cibles gauche : ", String.valueOf(this.scoreLeftTargetItemsSemantic), "/5"},
+            {" - Score items cibles droite : ", String.valueOf(this.scoreRightTargetItemsSemantic), "/5"},
+            {""},
+            {"COMPRÉHENSION DE MOTS : "},
+            {" - Total compréhension de mots : ", String.valueOf(this.totalWordComprehension), "/20"},
+            {" - Total items ajoutés manuellement : ", String.valueOf(this.totalItemsAddedManually), "/20"},
+            {" - Total compréhension de mots avec items sélectionnés manuellement : ", String.valueOf(this.total), "/20"},
+        };
+
+        int rowCount = 0;
+
+        for (Object[] aBook : bookData) {
+            Row row = sheet.createRow(rowCount++);
+
+            int columnCount = 0;
+
+            for (Object field : aBook) {
+                Cell cell = row.createCell(columnCount++);
+                if (field instanceof String) {
+                    cell.setCellValue((String) field);
+                } else if (field instanceof Integer) {
+                    cell.setCellValue((Integer) field);
+                }
+            }
+        }
+
+        try (FileOutputStream outputStream = new FileOutputStream(pathFile)) {
+            workbook.write(outputStream);
+        } catch (Exception e){
+            log.info("Creation of xlsx file don't work");
+        }
+    }
+
+    public void createExcelSentenceComprehension(){
+
+        File pathDirectory = stats.getGameStatsOfTheDayDirectory();
+        String pathFile = pathDirectory + "\\statsBeraComprehensionPhrases-" + DateUtils.dateTimeNow() + ".xlsx";
+
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        XSSFSheet sheet = workbook.createSheet("Statistiques compréhension de phrases");
+
+        Object[][] bookData = {
+            {"Temps de jeu : ", String.valueOf(stats.timeGame / 100.), "secondes"},
+            {""},
+            {"MORPHOSYNTAXE : "},
+            {" - Total Morphosyntaxe : ", String.valueOf(this.totalMorphosyntax), "/10"},
+            {" - Score items simples : ", String.valueOf(this.simpleScoreItemsMorphosyntax), "/5"},
+            {" - Score items complexes : ", String.valueOf(this.complexScoreItemsMorphosyntax), "/5"},
+            {" - Score items cibles gauche : ", String.valueOf(this.scoreLeftTargetItemsMorphosyntax), "/5"},
+            {" - Score items cibles droite : ", String.valueOf(this.scoreRightTargetItemsMorphosyntax), "/5"},
+            {" - Total items ajoutés manuellement : ", String.valueOf(this.totalItemsAddedManually), "/10"},
+            {" - Total compréhension de phrases : ", String.valueOf(this.total), "/10"},
+        };
+
+        int rowCount = 0;
+
+        for (Object[] aBook : bookData) {
+            Row row = sheet.createRow(rowCount++);
+
+            int columnCount = 0;
+
+            for (Object field : aBook) {
+                Cell cell = row.createCell(columnCount++);
+                if (field instanceof String) {
+                    cell.setCellValue((String) field);
+                } else if (field instanceof Integer) {
+                    cell.setCellValue((Integer) field);
+                }
+            }
+        }
+
+        try (FileOutputStream outputStream = new FileOutputStream(pathFile)) {
+            workbook.write(outputStream);
+        } catch (Exception e){
+            log.info("Creation of xlsx file don't work");
+        }
+    }
+
     private class CustomInputEventHandlerKeyboard implements EventHandler<KeyEvent> {
 
         public boolean ignoreAnyInput = false;
@@ -730,17 +986,29 @@ public class BeraV2 implements GameLifeCycle {
         @Override
         public void handle(KeyEvent key) {
 
+            if (key.getCode().isArrowKey() && goNext){
+                timelineQuestion.stop();
+                goNext = false;
+                choicePicturePair();
+            }
+
             if (ignoreAnyInput) {
                 return;
             }
 
             if (key.getCode().getChar().equals("X")) {
                 ignoreAnyInput = true;
+                timelineTransition.stop();
+                timelineQuestion.stop();
                 next(true);
             } else if (key.getCode().getChar().equals("C")) {
                 ignoreAnyInput = true;
+                timelineTransition.stop();
+                timelineQuestion.stop();
                 next(false);
             } else if (key.getCode().getChar().equals("V")) {
+                timelineTransition.stop();
+                timelineQuestion.stop();
                 removeItemAddedManually();
             }
         }

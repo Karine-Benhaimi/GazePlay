@@ -177,7 +177,6 @@ class PictureCard extends Group {
 
             this.waitBeforeNextRound();
         }
-
     }
 
     public void onWrongCardSelected() {
@@ -321,10 +320,7 @@ class PictureCard extends Group {
                 onEntered();
             } else if (e.getEventType() == MouseEvent.MOUSE_EXITED || e.getEventType() == GazeEvent.GAZE_EXITED) {
                 onExited();
-            } /*else if (gameInstance.reEntered && (e.getEventType() == MouseEvent.MOUSE_MOVED || e.getEventType() == GazeEvent.GAZE_MOVED)){
-                gameInstance.reEntered = false;
-                onEntered();
-            }*/
+            }
         }
 
         private void onEntered() {

@@ -101,7 +101,6 @@ public class Bera implements GameLifeCycle {
     private Timeline timelineQuestion = waitForQuestion();
     private Long currentRoundStartTime;
 
-
     public Bera(final boolean fourThree, final IGameContext gameContext, final Stats stats, final BeraGameVariant gameVariant) {
         this.gameContext = gameContext;
         this.fourThree = fourThree;
@@ -151,7 +150,6 @@ public class Bera implements GameLifeCycle {
         gameContext.firstStart();
 
         this.startGame();
-
     }
 
     public void startTimer(){
@@ -692,7 +690,6 @@ public class Bera implements GameLifeCycle {
         } else {
             currentRoundDetails.getPictureCardList().get(0).onWrongCardSelected();
         }
-
     }
 
     private void removeItemAddedManually() {
