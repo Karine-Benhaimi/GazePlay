@@ -352,7 +352,7 @@ public class StatsContext extends GraphicalContext<BorderPane> {
         CustomButton scanPathButton = new CustomButton("data/common/images/scanpathButton.png", screenDimension);
         scanPathButton.addEventFilter(MouseEvent.MOUSE_CLICKED, viewScanPath);
 
-        CustomButton openExcelButton = new CustomButton("data/common/images/license.png", screenDimension);
+        CustomButton openExcelButton = new CustomButton("data/common/images/excelButton.png", screenDimension);
         openExcelButton.addEventFilter(MouseEvent.MOUSE_CLICKED, openFile);
 
         HBox controlButtonPane = new HBox();
