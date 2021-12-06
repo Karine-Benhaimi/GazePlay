@@ -160,6 +160,7 @@ public class Stats implements GazeMotionListener {
 
     public int total = 0;
     public long timeGame = 0;
+    public String actualFile = "";
 
     //parameters for AOI
     private int movementHistoryidx = 0;

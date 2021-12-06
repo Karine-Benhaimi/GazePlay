@@ -35,6 +35,8 @@ import net.gazeplay.stats.HiddenItemsGamesStats;
 import net.gazeplay.stats.ShootGamesStats;
 import net.gazeplay.ui.GraphicalContext;
 
+import java.awt.*;
+import java.io.File;
 import java.util.LinkedList;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -343,8 +345,15 @@ public class StatsContext extends GraphicalContext<BorderPane> {
             gazePlay.onDisplayScanpath(scanPath);
         };
 
+        EventHandler<Event> openFile = s -> {
+            this.openFile(stats);
+        };
+
         CustomButton scanPathButton = new CustomButton("data/common/images/scanpathButton.png", screenDimension);
         scanPathButton.addEventFilter(MouseEvent.MOUSE_CLICKED, viewScanPath);
+
+        CustomButton openExcelButton = new CustomButton("data/common/images/license.png", screenDimension);
+        openExcelButton.addEventFilter(MouseEvent.MOUSE_CLICKED, openFile);
 
         HBox controlButtonPane = new HBox();
         ControlPanelConfigurator.getSingleton().customizeControlPaneLayout(controlButtonPane);
@@ -360,6 +369,7 @@ public class StatsContext extends GraphicalContext<BorderPane> {
             controlButtonPane.getChildren().add(scanPathButton);
         }
 
+        controlButtonPane.getChildren().add(openExcelButton);
         controlButtonPane.getChildren().add(homeButton);
 
         if (continueButton != null) {
@@ -372,5 +382,15 @@ public class StatsContext extends GraphicalContext<BorderPane> {
     @Override
     public ObservableList<Node> getChildren() {
         return root.getChildren();
+    }
+
+    public void openFile(Stats stats){
+        Desktop desktop = Desktop.getDesktop();
+        try {
+            desktop.open(new File(stats.actualFile));
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 }

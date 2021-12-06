@@ -38,6 +38,7 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -881,6 +882,7 @@ public class BeraV2 implements GameLifeCycle {
 
         File pathDirectory = stats.getGameStatsOfTheDayDirectory();
         String pathFile = pathDirectory + "\\statsBeraComprehensionMots-" + DateUtils.dateTimeNow() + ".xlsx";
+        this.stats.actualFile = pathFile;
 
         XSSFWorkbook workbook = new XSSFWorkbook();
         XSSFSheet sheet = workbook.createSheet("Statistiques compréhension de mots");
@@ -938,6 +940,7 @@ public class BeraV2 implements GameLifeCycle {
 
         File pathDirectory = stats.getGameStatsOfTheDayDirectory();
         String pathFile = pathDirectory + "\\statsBeraComprehensionPhrases-" + DateUtils.dateTimeNow() + ".xlsx";
+        this.stats.actualFile = pathFile;
 
         XSSFWorkbook workbook = new XSSFWorkbook();
         XSSFSheet sheet = workbook.createSheet("Statistiques compréhension de phrases");
